@@ -104,6 +104,11 @@ class RedTeamRequest(BaseModel):
     vector: str
 
 
+class UpsellRequest(BaseModel):
+    sku: Optional[str] = "SKU-002"
+    quantity: Optional[int] = 1
+
+
 @app.get("/api/mandate")
 def get_mandate():
     """Returns the current active spending mandate and public key."""
@@ -235,6 +240,109 @@ def get_test_payment_signature(order_id: str, payment_id: str):
     """Returns valid HMAC-SHA256 test signature for checkout verification."""
     sig = razorpay_executor.generate_test_signature(order_id=order_id, payment_id=payment_id)
     return {"order_id": order_id, "payment_id": payment_id, "signature": sig}
+
+
+@app.post("/api/storefront/upsell")
+def run_merchant_upsell(req: Optional[UpsellRequest] = None):
+    """Evaluates proposal against active mandate headroom and bundles high-margin add-on."""
+    sku = req.sku if req and req.sku else "SKU-002"
+    quantity = req.quantity if req and req.quantity else 1
+    product = get_catalog_product(sku)
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    base_proposal = TransactionProposal(
+        proposal_id=f"prop_base_{uuid.uuid4().hex[:8]}",
+        sku=sku,
+        item_name=product["name"],
+        unit_price=product["price"],
+        quantity=quantity,
+        total_amount=product["price"] * quantity,
+        currency="INR",
+        category=product["category"],
+        merchant_id="sentry-store",
+        idempotency_key=f"idemp_upsell_{uuid.uuid4().hex[:8]}",
+        mandate_id=current_mandate.mandate_id
+    )
+
+    upsell_bundle = revenue_agent.create_upsell_bundle(base_proposal, current_mandate)
+    if not upsell_bundle.get("eligible"):
+        return {"status": "no_upsell", "bundle": upsell_bundle}
+
+    # Propose the bundled purchase to Sentry Firewall
+    bundled_p = TransactionProposal(**upsell_bundle["bundled_proposal"])
+    firewall_result = storefront_service.propose_purchase(current_mandate, bundled_p)
+
+    return {
+        "status": "upsell_authorized" if firewall_result["decision"]["decision"] == "APPROVED" else "upsell_rejected",
+        "upsell_bundle": upsell_bundle,
+        "firewall_result": firewall_result,
+        "gmv_growth_percentage": upsell_bundle["financial_breakdown"]["gmv_growth_percentage"]
+    }
+
+
+@app.get("/api/uap/credential")
+def get_uap_credential():
+    """Returns signed NPCI Unified Authorization Protocol (UAP) 1.0-draft credential."""
+    return to_uap_credential(current_mandate, public_key_hex=signer.public_key_hex)
+
+
+@app.get("/api/uap/download")
+def download_uap_certificate():
+    """Returns downloadable JSON certificate of the NPCI UAP credential."""
+    cred = to_uap_credential(current_mandate, public_key_hex=signer.public_key_hex)
+    content = json.dumps(cred, indent=2)
+    return Response(
+        content=content,
+        media_type="application/json",
+        headers={"Content-Disposition": f'attachment; filename="uap_mandate_{current_mandate.mandate_id}.json"'}
+    )
+
+
+@app.post("/api/policy/counter-proposal")
+def run_counter_proposal_flow():
+    """Simulates prompt injection failure, generates explainable counter-proposal, and executes autonomous recovery."""
+    attack_proposal = TransactionProposal(
+        proposal_id=f"prop_attack_{uuid.uuid4().hex[:8]}",
+        sku="SKU-002",
+        item_name="Silver Heart Necklace",
+        unit_price=1200,
+        quantity=40,
+        total_amount=48000,
+        currency="INR",
+        category="gifts",
+        merchant_id="sentry-store",
+        idempotency_key=f"idemp_attack_{uuid.uuid4().hex[:8]}",
+        mandate_id=current_mandate.mandate_id
+    )
+    attack_result = storefront_service.propose_purchase(current_mandate, attack_proposal)
+
+    # Step 2: Graceful Recovery Engine creates counter-proposal
+    counter_data = recovery_engine.generate_counter_proposal(
+        failed_proposal=attack_proposal,
+        mandate=current_mandate,
+        verdict=attack_result["decision"]
+    )
+
+    # Step 3: Agent accepts counter-proposal and executes within mandate
+    recovered_proposal = TransactionProposal(**counter_data["counter_proposal"])
+    recovery_result = storefront_service.propose_purchase(current_mandate, recovered_proposal)
+
+    return {
+        "status": "gracefully_recovered",
+        "attack_phase": {
+            "proposal": attack_proposal.model_dump(),
+            "verdict": attack_result["decision"],
+            "razorpay_called": attack_result["razorpay_called"]
+        },
+        "remediation_phase": counter_data,
+        "recovery_phase": {
+            "proposal": recovered_proposal.model_dump(),
+            "verdict": recovery_result["decision"],
+            "razorpay_called": recovery_result["razorpay_called"],
+            "order": recovery_result.get("order")
+        }
+    }
 
 
 @app.get("/api/mandate/export-ap2")
@@ -465,6 +573,59 @@ def run_demo_scenario(req: DemoRequest):
                 "proposal": p.model_dump(),
                 "result": result,
                 "requires_human_approval": True
+            }
+        }
+
+    elif scenario == "upsell_growth":
+        # Merchant AI Upsell: SKU-002 (₹1,200) + SKU-006 Gift Wrap (₹250) = ₹1,450 (+20.8% GMV)
+        base_p = TransactionProposal(
+            proposal_id=f"prop_upsell_base_{uuid.uuid4().hex[:8]}",
+            sku="SKU-002",
+            item_name="Silver Heart Necklace",
+            unit_price=1200,
+            quantity=1,
+            total_amount=1200,
+            currency="INR",
+            category="gifts",
+            merchant_id="sentry-store",
+            idempotency_key=f"idemp_upsell_base_{uuid.uuid4().hex[:8]}",
+            mandate_id=current_mandate.mandate_id
+        )
+        bundle = revenue_agent.create_upsell_bundle(base_p, current_mandate)
+        bundled_p = TransactionProposal(**bundle["bundled_proposal"])
+        result = storefront_service.propose_purchase(current_mandate, bundled_p)
+        return {
+            "scenario": "upsell_growth",
+            "output": {
+                "agent_activity": [
+                    {"step": "list_products", "details": {"message": "Buyer agent exploring catalog for gifts under ₹1,500"}},
+                    {"step": "propose_purchase", "details": {"message": "Buyer proposed SKU-002 Silver Heart Necklace (₹1,200)"}},
+                    {"step": "upsell_offered", "details": {"message": f"Merchant Agent identified ₹300 headroom -> Bundled SKU-006 Artisanal Gift Wrap (+₹250, +20.8% GMV)"}},
+                    {"step": "verdict_received", "details": {"decision": result["decision"]["decision"], "reason": result["decision"]["reason"]}}
+                ],
+                "proposal": bundled_p.model_dump(),
+                "result": result,
+                "upsell_bundle": bundle,
+                "gmv_growth_percentage": bundle["financial_breakdown"]["gmv_growth_percentage"]
+            }
+        }
+
+    elif scenario == "graceful_recovery":
+        # Graceful Failure: Attack requesting 40 units (₹48,000) is blocked, counter-proposed 1 unit (₹1,200), and recovered
+        flow = run_counter_proposal_flow()
+        return {
+            "scenario": "graceful_recovery",
+            "output": {
+                "agent_activity": [
+                    {"step": "adversarial_content_detected", "details": {"message": "Catalog prompt injection compelled agent to order 40 units (₹48,000)"}},
+                    {"step": "verdict_received", "details": {"decision": "REJECTED", "reason": flow["attack_phase"]["verdict"]["reason"]}},
+                    {"step": "counter_proposal_received", "details": {"message": f"Firewall generated explainable counter-proposal: {flow['remediation_phase']['remediation']['rationale']}"}},
+                    {"step": "recovery_executed", "details": {"message": "Buyer agent accepted counter-proposal; 1 unit authorized & Razorpay order created"}}
+                ],
+                "proposal": flow["recovery_phase"]["proposal"],
+                "result": flow["recovery_phase"]["verdict"],
+                "order": flow["recovery_phase"].get("order"),
+                "flow": flow
             }
         }
 

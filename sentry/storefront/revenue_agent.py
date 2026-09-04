@@ -65,6 +65,7 @@ class MerchantRevenueAgent:
 
         # Create bundled proposal representation
         bundled_proposal = TransactionProposal(
+            proposal_id=f"prop_upsell_{base_proposal.proposal_id}",
             mandate_id=mandate.mandate_id,
             sku=base_proposal.sku,
             item_name=f"{base_proposal.item_name} + {add_on.name}",

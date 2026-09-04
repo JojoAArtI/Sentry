@@ -49,6 +49,7 @@ class GracefulRecoveryEngine:
 
         # Valid counter-proposal exists
         recovered_proposal = TransactionProposal(
+            proposal_id=f"prop_recover_{failed_proposal.proposal_id}",
             mandate_id=mandate.mandate_id,
             sku=failed_proposal.sku,
             item_name=product.name,
