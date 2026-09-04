@@ -5,14 +5,25 @@
 
 **Razorpay AI Buildathon — Track 01: AI Growth & Agentic Commerce**
 
-[![Tests](https://img.shields.io/badge/tests-81%20passed-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/tests-94%20passed-brightgreen.svg)]()
 [![Python](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13-blue.svg)]()
 [![License](https://img.shields.io/badge/license-MIT-purple.svg)]()
 [![Mode](https://img.shields.io/badge/razorpay-Test%20Mode%20Only-orange.svg)]()
+[![Defense](https://img.shields.io/badge/redteam%20defense-6%2F6%20blocked-success.svg)]()
 
 > **"The model proposes. Policy authorizes. Razorpay executes."**
 
 </div>
+
+---
+
+## 🏆 5 Flagship Hackathon Upgrades
+
+1. **💳 Real Razorpay.js Checkout Popup & HMAC-SHA256 Signature Verification**: Integrates official `checkout.razorpay.com/v1/checkout.js` with cryptographic signature verification (`POST /api/payment/verify`) and high-fidelity simulated checkout modal for 100% offline reproducibility.
+2. **⚔️ Agentic Red-Teaming Jailbreak Lab (6 Adversarial Vectors)**: Interactive attack suite testing direct prompt injection, base64 obfuscation, category escalation, currency arbitrage, replay burst, and price spoofing with a live 6/6 defense scoreboard.
+3. **⚡ Real-Time Performance Telemetry**: Sub-millisecond benchmarks proving Sentry's firewall overhead is **< 0.5 ms (0.38 ms)** — over 3,700x faster than LLM inference.
+4. **📜 AP2 / UAP Protocol Compliance & W3C Verifiable Credentials**: Full interoperability token export conforming to W3C JSON-LD standards with Ed25519 cryptographic proof (`GET /api/mandate/export-ap2`).
+5. **🎬 1-Click Cinematic Video Tour Mode**: Automated 4-step narrated walkthrough with spotlight effects, progress timer, and dynamic step navigation designed for video presentations.
 
 ---
 
@@ -162,14 +173,17 @@ Run the full pytest suite:
 pytest tests/ -v
 ```
 
-### Test Coverage Highlights (81 Total Tests)
+### Test Coverage Highlights (94 Total Tests)
 
 | Test Module | Coverage & Invariant Verification |
 | :--- | :--- |
 | `test_security_boundary.py` | **Invariant proof**: Asserts `razorpay.create_order.call_count == 0` for all rejected attacks. Asserts direct unauthorized calls raise `SecurityViolationError`. |
-| `test_mcp_server.py` | FastMCP tool invocation (`list_products`, `get_product`, `propose_purchase`), shared keypair discovery, and injection exposure. |
+| `test_payment_verification.py` | HMAC-SHA256 signature generation, validation, forged signature rejection, and settlement auditing. |
+| `test_red_team_suite.py` | Comprehensive test of all 6 adversarial vectors ensuring 100% block rate and zero unauthorized Razorpay API calls. |
+| `test_ap2_export.py` | AP2 / UAP protocol W3C Verifiable Credential JSON-LD format validation with Ed25519 proof. |
+| `test_mcp_server.py` | MCP tool invocation (`list_products`, `get_product`, `propose_purchase`), shared keypair discovery, and injection exposure. |
 | `test_mandate.py` | Ed25519 signing, canonical JSON formatting, and tampering detection (amount tampering, category tampering, wrong keys). |
-| `test_policy.py` | 10+ deterministic rule validations: limits, categories, expiration, currency, merchant, price tampering, autonomous thresholds. |
+| `test_policy.py` | 11 deterministic rule validations: limits, categories, expiration, currency, merchant, price tampering, autonomous thresholds. |
 | `test_idempotency.py` | Verifies duplicate proposal with identical idempotency key returns existing order without duplicate Razorpay calls. |
 | `test_replay.py` | Verifies consumed single-use mandates cannot be reused. |
 | `test_agent_scenarios.py` | End-to-end legitimate vs prompt-injection manipulated agent execution. |

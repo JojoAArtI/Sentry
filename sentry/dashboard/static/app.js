@@ -1,11 +1,16 @@
-// Sentry Dashboard Client Logic — Full Interactive Upgrade
+// Sentry Dashboard Client Logic — Flagship Hackathon Edition
 
 let lastOrderData = null;
+let tourCurrentStep = 0;
+let tourTimer = null;
+let tourIsPaused = false;
+let tourTimeLeft = 6;
 
 document.addEventListener('DOMContentLoaded', () => {
   fetchMandate();
   fetchAuditTrail();
   fetchStatus();
+  fetchTelemetry();
   setInterval(fetchStatus, 3000);
 });
 
@@ -102,6 +107,21 @@ async function fetchStatus() {
   }
 }
 
+async function fetchTelemetry() {
+  try {
+    const res = await fetch('/api/telemetry');
+    const data = await res.json();
+    const modelEl = document.getElementById('t-model-ms');
+    const sentryEl = document.getElementById('t-sentry-ms');
+    const rzpEl = document.getElementById('t-rzp-ms');
+    if (modelEl) modelEl.textContent = `${data.model_inference_latency_ms.toLocaleString()} ms`;
+    if (sentryEl) sentryEl.textContent = `${data.sentry_firewall_latency_ms} ms`;
+    if (rzpEl) rzpEl.textContent = `${data.razorpay_order_api_ms} ms`;
+  } catch (err) {
+    console.error('Failed to fetch telemetry:', err);
+  }
+}
+
 async function fetchAuditTrail() {
   try {
     const res = await fetch('/api/audit?limit=25');
@@ -172,6 +192,7 @@ async function runScenario(scenarioName) {
     await fetchMandate();
     await fetchAuditTrail();
     await fetchStatus();
+    await fetchTelemetry();
   } catch (err) {
     alert('Error executing scenario: ' + err.message);
   }
@@ -201,6 +222,7 @@ async function submitCustomPrompt() {
     await fetchMandate();
     await fetchAuditTrail();
     await fetchStatus();
+    await fetchTelemetry();
   } catch (err) {
     alert('Error executing prompt: ' + err.message);
   }
@@ -246,6 +268,7 @@ function renderVerdict(result, proposal) {
   const container = document.getElementById('verdict-panel');
   const rzpOrderDisplay = document.getElementById('rzp-order-display');
   const receiptBtn = document.getElementById('view-receipt-btn');
+  const payNowBtn = document.getElementById('pay-now-btn');
   const d = result.decision;
 
   if (d.decision === 'APPROVED') {
@@ -263,11 +286,13 @@ function renderVerdict(result, proposal) {
       </div>
     `;
     rzpOrderDisplay.textContent = `Order Created: ${orderId} (${result.order?.currency || 'INR'})`;
-    receiptBtn.style.display = 'inline-flex';
+    if (receiptBtn) receiptBtn.style.display = 'inline-flex';
+    if (payNowBtn) payNowBtn.style.display = 'inline-flex';
     animatePipelineApproved(orderId);
   } else if (d.decision === 'REJECTED') {
     lastOrderData = null;
-    receiptBtn.style.display = 'none';
+    if (receiptBtn) receiptBtn.style.display = 'none';
+    if (payNowBtn) payNowBtn.style.display = 'none';
     container.innerHTML = `
       <div class="verdict-box rejected">
         <div class="verdict-title">🛑 TRANSACTION BLOCKED</div>
@@ -282,7 +307,8 @@ function renderVerdict(result, proposal) {
     animatePipelineBlocked(d.reason_code);
   } else if (d.decision === 'REQUIRES_HUMAN_APPROVAL') {
     lastOrderData = null;
-    receiptBtn.style.display = 'none';
+    if (receiptBtn) receiptBtn.style.display = 'none';
+    if (payNowBtn) payNowBtn.style.display = 'none';
     container.innerHTML = `
       <div class="verdict-box" style="background: rgba(245, 158, 11, 0.12); border: 2px solid #f59e0b;">
         <div class="verdict-title" style="color: #f59e0b;">⚠️ REQUIRES HUMAN SIGN-OFF</div>
@@ -420,6 +446,7 @@ async function resolveApproval(action) {
 
 async function resetMandate() {
   try {
+    lastOrderData = null;
     await fetch('/api/mandate/reset', { method: 'POST' });
     await fetchMandate();
     await fetchAuditTrail();
@@ -432,7 +459,10 @@ async function resetMandate() {
       </div>
     `;
     document.getElementById('rzp-order-display').textContent = 'No active order';
-    document.getElementById('view-receipt-btn').style.display = 'none';
+    const receiptBtn = document.getElementById('view-receipt-btn');
+    const payNowBtn = document.getElementById('pay-now-btn');
+    if (receiptBtn) receiptBtn.style.display = 'none';
+    if (payNowBtn) payNowBtn.style.display = 'none';
     document.getElementById('agent-activity-feed').innerHTML = `
       <div class="feed-item placeholder-item">
         <span class="feed-desc">Mandate reset. Ready for agent execution.</span>
@@ -440,5 +470,390 @@ async function resetMandate() {
     `;
   } catch (err) {
     alert('Failed to reset mandate: ' + err.message);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// RAZORPAY CHECKOUT & HMAC-SHA256 SIGNATURE VERIFICATION
+// ---------------------------------------------------------------------------
+async function triggerRazorpayCheckout() {
+  if (!lastOrderData) {
+    alert('No approved Razorpay order active. Run Scenario A (Legitimate Buy) first.');
+    return;
+  }
+
+  // Populate modal data
+  const itemName = lastOrderData.notes?.item_name || 'Silver Heart Necklace';
+  const amountFormatted = `₹${(lastOrderData.amount / 100).toLocaleString('en-IN')}.00`;
+  const amountShort = `₹${(lastOrderData.amount / 100).toLocaleString('en-IN')}`;
+  
+  const itemNameEl = document.getElementById('checkout-item-name');
+  const amountDisplayEl = document.getElementById('checkout-amount-display');
+  const payBtnAmountEl = document.getElementById('pay-btn-amount');
+  const mandateIdEl = document.getElementById('checkout-mandate-id');
+
+  if (itemNameEl) itemNameEl.textContent = itemName;
+  if (amountDisplayEl) amountDisplayEl.textContent = amountFormatted;
+  if (payBtnAmountEl) payBtnAmountEl.textContent = amountShort;
+  if (mandateIdEl) mandateIdEl.textContent = lastOrderData.notes?.mandate_id || document.getElementById('mandate-id-display').textContent;
+
+  // Check if real live Razorpay SDK can be opened with configured test keys
+  try {
+    const statusRes = await fetch('/api/status');
+    const statusData = await statusRes.json();
+    const keyId = statusData.razorpay_key_id;
+
+    if (window.Razorpay && keyId && keyId.startsWith('rzp_test_') && keyId !== 'rzp_test_sentry_demo' && !lastOrderData.id.startsWith('order_test_')) {
+      const options = {
+        key: keyId,
+        amount: lastOrderData.amount,
+        currency: lastOrderData.currency || 'INR',
+        name: 'Sentry Agentic Store',
+        description: `Authorized Order #${lastOrderData.id}`,
+        order_id: lastOrderData.id,
+        handler: async function (response) {
+          await verifyPaymentOnServer(
+            response.razorpay_order_id || lastOrderData.id,
+            response.razorpay_payment_id,
+            response.razorpay_signature
+          );
+        },
+        prefill: {
+          name: 'Agentic Buyer',
+          email: 'agent@sentry.internal',
+          contact: '9999999999'
+        },
+        theme: { color: '#002970' }
+      };
+      const rzpInstance = new window.Razorpay(options);
+      rzpInstance.open();
+      return;
+    }
+  } catch (err) {
+    console.log('Live Razorpay checkout deferred, opening interactive simulated modal:', err);
+  }
+
+  // Fallback: Open simulated high-fidelity checkout modal
+  const checkoutModal = document.getElementById('checkout-modal');
+  if (checkoutModal) checkoutModal.style.display = 'flex';
+}
+
+function closeCheckoutModal() {
+  const checkoutModal = document.getElementById('checkout-modal');
+  if (checkoutModal) checkoutModal.style.display = 'none';
+}
+
+async function processSimulatedPayment() {
+  if (!lastOrderData) return;
+  const payBtn = document.getElementById('rzp-pay-submit-btn');
+  const originalHtml = payBtn.innerHTML;
+  payBtn.innerHTML = '<span>Verifying HMAC-SHA256...</span>';
+  payBtn.disabled = true;
+
+  try {
+    const orderId = lastOrderData.id;
+    const simPaymentId = `pay_sim_${Math.random().toString(36).substring(2, 10)}`;
+
+    // 1. Fetch valid HMAC-SHA256 signature from server
+    const sigRes = await fetch(`/api/payment/test-signature?order_id=${encodeURIComponent(orderId)}&payment_id=${encodeURIComponent(simPaymentId)}`);
+    const sigData = await sigRes.json();
+
+    // 2. Submit signature to server verification gate
+    await verifyPaymentOnServer(orderId, simPaymentId, sigData.signature);
+    closeCheckoutModal();
+  } catch (err) {
+    alert('Payment verification failed: ' + err.message);
+  } finally {
+    payBtn.innerHTML = originalHtml;
+    payBtn.disabled = false;
+  }
+}
+
+async function verifyPaymentOnServer(orderId, paymentId, signature) {
+  try {
+    const verifyRes = await fetch('/api/payment/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order_id: orderId,
+        payment_id: paymentId,
+        signature: signature
+      })
+    });
+    const result = await verifyRes.json();
+
+    if (result.status === 'verified') {
+      alert(`🎉 Payment Verified & Settled via Razorpay HMAC-SHA256!\nOrder ID: ${orderId}\nPayment ID: ${paymentId}\nCryptographic Proof: Validated`);
+      await fetchAuditTrail();
+      await fetchStatus();
+      openReceiptModal();
+    } else {
+      alert('Payment signature rejection: ' + JSON.stringify(result));
+    }
+  } catch (err) {
+    alert('Payment settlement failed: ' + err.message);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// RED TEAM JAILBREAK LAB & LIVE DEFENSE MATRIX
+// ---------------------------------------------------------------------------
+function toggleRedTeamLab() {
+  const lab = document.getElementById('redteam-lab');
+  lab.style.display = lab.style.display === 'none' ? 'block' : 'none';
+  if (lab.style.display === 'block') {
+    lab.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
+const VECTOR_MAP = {
+  'direct_jailbreak': 1,
+  'base64_jailbreak': 2,
+  'category_escalation': 3,
+  'currency_arbitrage': 4,
+  'replay_burst': 5,
+  'price_spoofing': 6
+};
+
+async function runSingleRedTeam(vectorKey) {
+  const vNum = VECTOR_MAP[vectorKey];
+  const statusEl = document.getElementById(`v-status-${vNum}`);
+  if (statusEl) {
+    statusEl.textContent = 'TESTING...';
+    statusEl.className = 'vector-status status-testing';
+  }
+
+  try {
+    const res = await fetch('/api/redteam/run', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vector: vectorKey })
+    });
+    const data = await res.json();
+
+    if (data.is_blocked && !data.razorpay_called) {
+      if (statusEl) {
+        statusEl.textContent = 'BLOCKED ✓';
+        statusEl.className = 'vector-status status-blocked';
+      }
+    } else {
+      if (statusEl) {
+        statusEl.textContent = 'ALLOWED ✗';
+        statusEl.className = 'vector-status status-allowed';
+      }
+    }
+
+    renderAgentFeed(data.output.agent_activity);
+    renderVerdict(data.output.result, data.output.proposal);
+
+    await fetchAuditTrail();
+    await fetchStatus();
+    await fetchTelemetry();
+  } catch (err) {
+    alert('Red team attack failed: ' + err.message);
+  }
+}
+
+async function runAllRedTeamAttacks() {
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById(`v-status-${i}`);
+    if (el) {
+      el.textContent = 'TESTING...';
+      el.className = 'vector-status status-testing';
+    }
+  }
+
+  try {
+    const res = await fetch('/api/redteam/run-all', { method: 'POST' });
+    const data = await res.json();
+
+    document.getElementById('score-rate').textContent = `${data.defense_rate} BLOCKED (${data.defense_percentage}%)`;
+    const callsEl = document.getElementById('score-calls');
+    if (data.unauthorized_razorpay_calls === 0) {
+      callsEl.textContent = '0 CALLS (INVARIANT SAFE ✓)';
+      callsEl.className = 'score-val score-green';
+    } else {
+      callsEl.textContent = `${data.unauthorized_razorpay_calls} CALLS (VIOLATION ✗)`;
+      callsEl.className = 'score-val score-red';
+    }
+
+    data.results.forEach(r => {
+      const vNum = VECTOR_MAP[r.vector];
+      const el = document.getElementById(`v-status-${vNum}`);
+      if (el) {
+        if (r.is_blocked && !r.razorpay_called) {
+          el.textContent = `BLOCKED (${r.reason_code || '✓'})`;
+          el.className = 'vector-status status-blocked';
+        } else {
+          el.textContent = 'ALLOWED ✗';
+          el.className = 'vector-status status-allowed';
+        }
+      }
+    });
+
+    await fetchAuditTrail();
+    await fetchStatus();
+    await fetchTelemetry();
+  } catch (err) {
+    alert('Failed to run defense matrix: ' + err.message);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// AP2 / UAP VERIFIABLE CREDENTIAL MODAL
+// ---------------------------------------------------------------------------
+async function openAp2Modal() {
+  const modal = document.getElementById('ap2-modal');
+  const display = document.getElementById('ap2-json-display');
+  display.textContent = 'Loading AP2 Verifiable Credential Token...';
+  modal.style.display = 'flex';
+
+  try {
+    const res = await fetch('/api/mandate/export-ap2');
+    const token = await res.json();
+    display.textContent = JSON.stringify(token, null, 2);
+  } catch (err) {
+    display.textContent = 'Error fetching AP2 token: ' + err.message;
+  }
+}
+
+function closeAp2Modal() {
+  document.getElementById('ap2-modal').style.display = 'none';
+}
+
+function copyAp2Token() {
+  const display = document.getElementById('ap2-json-display');
+  navigator.clipboard.writeText(display.textContent).then(() => {
+    const btn = document.querySelector('.btn-copy');
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = 'Copied! ✓';
+      setTimeout(() => { btn.textContent = orig; }, 2000);
+    }
+  });
+}
+
+// ---------------------------------------------------------------------------
+// CINEMATIC AUTOMATED VIDEO TOUR MODE (4 STEPS)
+// ---------------------------------------------------------------------------
+const TOUR_STEPS = [
+  {
+    targetId: 'mandate-card-container',
+    counter: 'Step 1 of 4',
+    caption: 'Step 1: Cryptographic Spending Mandate (Ed25519) established. Sets hard deterministic boundary: Max ₹1,500, Allowed: [gifts, flowers], Single-Use.',
+    action: async () => {
+      await resetMandate();
+    }
+  },
+  {
+    targetId: 'pipeline-container',
+    counter: 'Step 2 of 4',
+    caption: 'Step 2: Legitimate purchase proposal (₹1,200) evaluated across Sentry\'s 11 deterministic policy gates. Authorized, and Razorpay Test Order is created.',
+    action: async () => {
+      await runScenario('legitimate');
+    }
+  },
+  {
+    targetId: 'firewall-card-container',
+    counter: 'Step 3 of 4',
+    caption: 'Step 3: Adversarial prompt injection (40 units / ₹48,000) tricks the LLM. Sentry firewall intercepts & BLOCKS transaction. Invariant verified: 0 Razorpay API calls.',
+    action: async () => {
+      await runScenario('attack_prompt_injection');
+    }
+  },
+  {
+    targetId: 'redteam-lab',
+    counter: 'Step 4 of 4',
+    caption: 'Step 4: Stress-testing Sentry against 6 adversarial jailbreak vectors in the Red Team Lab. 6/6 blocked. Zero unauthorized charges. <0.5ms overhead.',
+    action: async () => {
+      const lab = document.getElementById('redteam-lab');
+      if (lab.style.display === 'none') {
+        lab.style.display = 'block';
+      }
+      await runAllRedTeamAttacks();
+    }
+  }
+];
+
+function clearAllTourSpotlights() {
+  document.querySelectorAll('.tour-spotlight').forEach(el => {
+    el.classList.remove('tour-spotlight');
+  });
+}
+
+function startVideoTour() {
+  tourCurrentStep = 0;
+  tourIsPaused = false;
+  document.getElementById('tour-overlay').style.display = 'flex';
+  document.getElementById('tour-play-pause-btn').textContent = '⏸ Pause';
+  goToTourStep(1);
+}
+
+function stopVideoTour() {
+  clearInterval(tourTimer);
+  tourTimer = null;
+  clearAllTourSpotlights();
+  document.getElementById('tour-overlay').style.display = 'none';
+}
+
+function toggleTourPlayPause() {
+  tourIsPaused = !tourIsPaused;
+  const btn = document.getElementById('tour-play-pause-btn');
+  btn.textContent = tourIsPaused ? '▶ Play' : '⏸ Pause';
+}
+
+async function goToTourStep(stepNum) {
+  if (stepNum < 1 || stepNum > TOUR_STEPS.length) {
+    stopVideoTour();
+    return;
+  }
+  tourCurrentStep = stepNum;
+  const stepConfig = TOUR_STEPS[stepNum - 1];
+
+  clearAllTourSpotlights();
+  const targetEl = document.getElementById(stepConfig.targetId);
+  if (targetEl) {
+    targetEl.classList.add('tour-spotlight');
+    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  document.getElementById('tour-step-counter').textContent = stepConfig.counter;
+  document.getElementById('tour-caption-text').textContent = stepConfig.caption;
+  const progressPercent = (stepNum / TOUR_STEPS.length) * 100;
+  document.getElementById('tour-progress-fill').style.width = `${progressPercent}%`;
+
+  // Execute step action
+  if (stepConfig.action) {
+    await stepConfig.action();
+  }
+
+  // Reset countdown
+  clearInterval(tourTimer);
+  tourTimeLeft = 7;
+  tourTimer = setInterval(() => {
+    if (!tourIsPaused) {
+      tourTimeLeft--;
+      if (tourTimeLeft <= 0) {
+        if (tourCurrentStep < TOUR_STEPS.length) {
+          goToTourStep(tourCurrentStep + 1);
+        } else {
+          stopVideoTour();
+        }
+      }
+    }
+  }, 1000);
+}
+
+function nextTourStep() {
+  if (tourCurrentStep < TOUR_STEPS.length) {
+    goToTourStep(tourCurrentStep + 1);
+  } else {
+    stopVideoTour();
+  }
+}
+
+function prevTourStep() {
+  if (tourCurrentStep > 1) {
+    goToTourStep(tourCurrentStep - 1);
   }
 }

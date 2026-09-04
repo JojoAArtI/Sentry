@@ -59,3 +59,22 @@ def test_api_payment_verify_endpoint_failure(client):
     })
     assert res.status_code == 400
     assert "INVALID_PAYMENT_SIGNATURE" in res.json()["detail"]
+
+
+def test_api_payment_test_signature_endpoint(client):
+    """GET /api/payment/test-signature returns verifiable signature."""
+    order_id = "order_test_sig_01"
+    payment_id = "pay_test_sig_01"
+    res = client.get(f"/api/payment/test-signature?order_id={order_id}&payment_id={payment_id}")
+    assert res.status_code == 200
+    data = res.json()
+    assert "signature" in data
+
+    # Verify that the generated signature passes POST /api/payment/verify
+    v_res = client.post("/api/payment/verify", json={
+        "order_id": order_id,
+        "payment_id": payment_id,
+        "signature": data["signature"]
+    })
+    assert v_res.status_code == 200
+    assert v_res.json()["settled"] is True
