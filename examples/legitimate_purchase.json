@@ -1,0 +1,13 @@
+{
+  "proposal_id": "prop_legit_001",
+  "sku": "SKU-002",
+  "item_name": "Silver Heart Necklace",
+  "unit_price": 1200,
+  "quantity": 1,
+  "total_amount": 1200,
+  "currency": "INR",
+  "category": "gifts",
+  "merchant_id": "sentry-store",
+  "idempotency_key": "idemp_legit_1001",
+  "mandate_id": "mnd_demo_001"
+}

@@ -1,0 +1,16 @@
+{
+  "mandate_id": "mnd_demo_001",
+  "issued_to_agent": "buyer-agent-01",
+  "merchant_id": "sentry-store",
+  "max_amount": 1500,
+  "currency": "INR",
+  "allowed_categories": [
+    "gifts",
+    "flowers"
+  ],
+  "max_quantity": 2,
+  "expires_at": "2026-09-04T18:00:00Z",
+  "single_use": true,
+  "autonomous_threshold": 2000,
+  "signature": null
+}
