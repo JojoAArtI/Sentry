@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentry — Payment Authorization Firewall</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="top-header">
+      <div class="brand">
+        <div class="shield-icon">🛡️</div>
+        <div class="title-group">
+          <h1>SENTRY</h1>
+          <p class="subtitle">Deterministic Payment Authorization Firewall for Agentic Commerce</p>
+        </div>
+      </div>
+      <div class="badges">
+        <span class="badge badge-track">Track 01: Agentic Commerce</span>
+        <span class="badge badge-rzp">Razorpay Test Mode</span>
+        <span class="badge badge-crypto">Ed25519 Verified</span>
+      </div>
+    </header>
+
+    <!-- Core Principle Banner -->
+    <div class="principle-banner">
+      <span class="highlight">CORE PRINCIPLE:</span> The model proposes. Policy authorizes. Razorpay executes.
+    </div>
+
+    <!-- Demo Control Ribbon -->
+    <section class="demo-ribbon">
+      <div class="ribbon-title">DEMO CONTROL CENTER (DETERMINISTIC PLAYBOOK)</div>
+      <div class="button-grid">
+        <button class="btn btn-legit" onclick="runScenario('legitimate')">
+          <span class="btn-icon">✓</span>
+          <span class="btn-text">Scenario A: Legitimate Buy (₹1,200)</span>
+        </button>
+        <button class="btn btn-attack" onclick="runScenario('attack_prompt_injection')">
+          <span class="btn-icon">🚨</span>
+          <span class="btn-text">Scenario B: Prompt Injection Attack (40x / ₹48k)</span>
+        </button>
+        <button class="btn btn-warning" onclick="runScenario('attack_category')">
+          <span class="btn-icon">🛑</span>
+          <span class="btn-text">Scenario C: Category Violation</span>
+        </button>
+        <button class="btn btn-secondary" onclick="runScenario('replay')">
+          <span class="btn-icon">🔁</span>
+          <span class="btn-text">Scenario D: Replay Attack</span>
+        </button>
+        <button class="btn btn-secondary" onclick="runScenario('expired')">
+          <span class="btn-icon">⏳</span>
+          <span class="btn-text">Scenario E: Expired Mandate</span>
+        </button>
+        <button class="btn btn-accent" onclick="runScenario('human_approval')">
+          <span class="btn-icon">👤</span>
+          <span class="btn-text">Scenario F: Human Sign-off (P1)</span>
+        </button>
+        <button class="btn btn-reset" onclick="resetMandate()">
+          <span class="btn-icon">🔄</span>
+          <span class="btn-text">Reset Mandate</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Human Approval Alert Bar (Hidden by default) -->
+    <div id="approval-card" class="approval-card" style="display: none;">
+      <div class="approval-header">
+        <span class="approval-icon">⚠️</span>
+        <div class="approval-title-group">
+          <h3>HUMAN APPROVAL REQUIRED</h3>
+          <p>Transaction amount exceeds autonomous spending threshold. Model is paused at the payment gate.</p>
+        </div>
+      </div>
+      <div class="approval-details" id="approval-details-text">
+        <!-- populated dynamically -->
+      </div>
+      <div class="approval-actions">
+        <button class="btn btn-approve" onclick="resolveApproval('APPROVE')">APPROVE TRANSACTION</button>
+        <button class="btn btn-deny" onclick="resolveApproval('DENY')">DENY TRANSACTION</button>
+      </div>
+    </div>
+
+    <!-- Main Grid -->
+    <main class="dashboard-grid">
+      <!-- Section 1: Active Mandate -->
+      <div class="card mandate-card">
+        <div class="card-header">
+          <h2>1. ACTIVE SPENDING MANDATE</h2>
+          <span id="mandate-status-pill" class="status-pill pill-valid">VALID</span>
+        </div>
+        <div class="mandate-body">
+          <div class="stat-row">
+            <span class="stat-label">MAX LIMIT:</span>
+            <span class="stat-val" id="mandate-max-amount">₹1,500 INR</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">CATEGORIES:</span>
+            <span class="stat-val stat-code" id="mandate-categories">["gifts", "flowers"]</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">MAX QUANTITY:</span>
+            <span class="stat-val" id="mandate-max-qty">2 units</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">AUTONOMOUS LIMIT:</span>
+            <span class="stat-val" id="mandate-threshold">₹2,000 INR</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">EXPIRES:</span>
+            <span class="stat-val" id="mandate-expiry">Valid (UTC)</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">SINGLE USE:</span>
+            <span class="stat-val" id="mandate-single-use">YES (Non-reusable)</span>
+          </div>
+          <div class="crypto-meta">
+            <div class="crypto-row">
+              <span class="crypto-label">SIGNER PUBLIC KEY:</span>
+              <code id="mandate-pubkey" class="crypto-hash">Loading...</code>
+            </div>
+            <div class="crypto-row">
+              <span class="crypto-label">ED25519 SIGNATURE:</span>
+              <code id="mandate-sig" class="crypto-hash">Verified ✓</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Agent Activity Stream -->
+      <div class="card agent-card">
+        <div class="card-header">
+          <h2>2. BUYER AGENT LIVE STREAM</h2>
+          <span class="badge badge-untrusted">UNTRUSTED OUTPUT</span>
+        </div>
+        <div class="agent-stream" id="agent-activity-feed">
+          <div class="feed-item placeholder-item">
+            <span class="feed-time">Ready</span>
+            <span class="feed-desc">Click any demo scenario above to trigger the shopping agent.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Sentry Firewall Verdict -->
+      <div class="card firewall-card">
+        <div class="card-header">
+          <h2>3. SENTRY POLICY FIREWALL</h2>
+          <span class="badge badge-trusted">DETERMINISTIC GATE</span>
+        </div>
+        <div class="verdict-container" id="verdict-panel">
+          <div class="verdict-idle">
+            <div class="idle-icon">🛡️</div>
+            <p>Awaiting transaction proposal from agent...</p>
+          </div>
+        </div>
+        <!-- Invariant callout banner -->
+        <div class="rzp-invariant-box" id="rzp-status-box">
+          <div class="rzp-invariant-header">RAZORPAY TEST API EXECUTION:</div>
+          <div class="rzp-calls-count" id="rzp-calls-display">0 API CALLS MADE</div>
+          <div class="rzp-order-info" id="rzp-order-display">No active order</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Section 4: Audit Trail -->
+    <section class="audit-section">
+      <div class="audit-header">
+        <h2>4. IMMUTABLE AUDIT TRAIL (APPEND-ONLY SQLITE)</h2>
+        <span class="audit-badge">Cryptographic Proof &amp; Invariant Logging</span>
+      </div>
+      <div class="table-responsive">
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Event</th>
+              <th>Mandate ID</th>
+              <th>SKU</th>
+              <th>Qty</th>
+              <th>Requested Total</th>
+              <th>Verdict</th>
+              <th>Reason</th>
+              <th>Razorpay Called?</th>
+            </tr>
+          </thead>
+          <tbody id="audit-tbody">
+            <tr><td colspan="9" class="text-center">Loading audit events...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Sentry is a hackathon prototype for <strong>Razorpay AI Buildathon 2026</strong>. Razorpay is used exclusively in Test Mode.</p>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

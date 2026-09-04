@@ -74,17 +74,7 @@ class PolicyEngine:
                 details={"expires_at": exp.isoformat(), "current_time": now.isoformat()}
             )
 
-        # 3. Single-Use Replay Check
-        if mandate.single_use and self.state_store and self.state_store.is_mandate_used(mandate.mandate_id):
-            return PolicyDecision(
-                decision=PolicyVerdict.REJECTED,
-                reason_code=PolicyReasonCode.MANDATE_ALREADY_USED,
-                reason=f"Single-use mandate {mandate.mandate_id} has already been consumed.",
-                razorpay_call_allowed=False,
-                details={"mandate_id": mandate.mandate_id}
-            )
-
-        # 4. Idempotency Check
+        # 3. Idempotency Check (Duplicate request with same key returns existing record)
         if self.state_store:
             existing = self.state_store.get_idempotent_order(proposal.idempotency_key)
             if existing:
@@ -95,6 +85,16 @@ class PolicyEngine:
                     razorpay_call_allowed=False,  # Already created, must not duplicate Razorpay API call!
                     details={"existing_order": existing}
                 )
+
+        # 4. Single-Use Replay Check (New requests on consumed mandates are blocked)
+        if mandate.single_use and self.state_store and self.state_store.is_mandate_used(mandate.mandate_id):
+            return PolicyDecision(
+                decision=PolicyVerdict.REJECTED,
+                reason_code=PolicyReasonCode.MANDATE_ALREADY_USED,
+                reason=f"Single-use mandate {mandate.mandate_id} has already been consumed.",
+                razorpay_call_allowed=False,
+                details={"mandate_id": mandate.mandate_id}
+            )
 
         # 5. Merchant Alignment
         if proposal.merchant_id != mandate.merchant_id:

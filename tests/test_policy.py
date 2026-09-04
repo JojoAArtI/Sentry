@@ -1,7 +1,7 @@
 """Tests for Sentry Deterministic Policy Engine."""
 import pytest
 from datetime import datetime, timezone
-from sentry.mandate.schema import TransactionProposal
+from sentry.mandate.schema import SpendingMandate, TransactionProposal
 from sentry.policy.rules import PolicyVerdict, PolicyReasonCode
 from sentry.storefront.catalog import get_catalog_product
 
