@@ -4,6 +4,7 @@ FastAPI web application serving the single-page dashboard and demo control endpo
 """
 from datetime import datetime, timedelta, timezone
 import os
+import uuid
 from pathlib import Path
 from typing import Optional, Dict, Any
 from fastapi import FastAPI, HTTPException
@@ -38,7 +39,7 @@ buyer_agent = BuyerAgent(agent_id="buyer-agent-01", storefront=storefront_servic
 def create_default_mandate() -> SpendingMandate:
     future = datetime.now(timezone.utc) + timedelta(hours=4)
     mandate = SpendingMandate(
-        mandate_id="mnd_demo_001",
+        mandate_id=f"mnd_demo_{uuid.uuid4().hex[:8]}",
         issued_to_agent="buyer-agent-01",
         merchant_id="sentry-store",
         max_amount=1500,
