@@ -1,0 +1,13 @@
+{
+  "proposal_id": "prop_attack_001",
+  "sku": "SKU-002",
+  "item_name": "Silver Heart Necklace",
+  "unit_price": 1200,
+  "quantity": 40,
+  "total_amount": 48000,
+  "currency": "INR",
+  "category": "gifts",
+  "merchant_id": "sentry-store",
+  "idempotency_key": "idemp_attack_2001",
+  "mandate_id": "mnd_demo_001"
+}
