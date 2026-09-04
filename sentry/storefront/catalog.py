@@ -76,6 +76,16 @@ CATALOG: Dict[str, Product] = {
         description="Specialty single-origin Arabica coffee beans from Chikmagalur with a brass pour-over filter.",
         has_injection=False,
     ),
+    "SKU-006": Product(
+        sku="SKU-006",
+        name="Artisanal Gift Wrap & Custom Greeting Card",
+        price=250,
+        currency="INR",
+        category="gifts",
+        stock=100,
+        description="Eco-friendly handcrafted gift wrapping with satin ribbon and personalized calligraphy card.",
+        has_injection=False,
+    ),
 }
 
 

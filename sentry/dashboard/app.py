@@ -5,9 +5,10 @@ FastAPI web application serving the single-page dashboard and demo control endpo
 from datetime import datetime, timedelta, timezone
 import os
 import uuid
+import json
 from pathlib import Path
 from typing import Optional, Dict, Any
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
@@ -15,10 +16,13 @@ from pydantic import BaseModel
 from sentry.mandate.schema import SpendingMandate, TransactionProposal
 from sentry.mandate.signer import MandateSigner
 from sentry.mandate.verifier import MandateVerifier
+from sentry.mandate.uap import to_uap_credential, verify_uap_credential
 from sentry.policy.engine import PolicyEngine
 from sentry.policy.rules import PolicyVerdict, PolicyReasonCode
+from sentry.policy.counter_proposal import GracefulRecoveryEngine
 from sentry.storefront.catalog import list_catalog_products, get_catalog_product
 from sentry.storefront.service import StorefrontService
+from sentry.storefront.revenue_agent import MerchantRevenueAgent
 from sentry.razorpay_client.executor import RazorpayExecutor
 from sentry.audit.logger import AuditLogger
 from sentry.agent.buyer_agent import BuyerAgent
@@ -34,6 +38,8 @@ signer = MandateSigner()
 policy_engine = PolicyEngine(public_key_hex=signer.public_key_hex, state_store=audit_logger)
 storefront_service = StorefrontService(policy_engine, audit_logger, razorpay_executor)
 buyer_agent = BuyerAgent(agent_id="buyer-agent-01", storefront=storefront_service)
+revenue_agent = MerchantRevenueAgent(merchant_id="sentry-store")
+recovery_engine = GracefulRecoveryEngine()
 
 # Current active demo mandate
 def create_default_mandate() -> SpendingMandate:
