@@ -12,9 +12,20 @@ SECURITY INVARIANT:
 import json
 import os
 from typing import Dict, Any, Optional
-from mcp.server.fastmcp import FastMCP
+
+try:
+    from mcp.server.mcpserver import MCPServer as FastMCP
+except ImportError:
+    try:
+        from mcp.server.fastmcp import FastMCP
+    except ImportError:
+        class FastMCP:
+            def __init__(self, name: str): self.name = name
+            def tool(self): return lambda fn: fn
+            def run(self): pass
 
 from sentry.mandate.schema import SpendingMandate, TransactionProposal
+from sentry.mandate.signer import get_shared_signer
 from sentry.policy.engine import PolicyEngine
 from sentry.audit.logger import AuditLogger
 from sentry.razorpay_client.executor import RazorpayExecutor
@@ -25,8 +36,9 @@ from sentry.storefront.catalog import get_catalog_product
 audit_logger = AuditLogger()
 razorpay_executor = RazorpayExecutor()
 
-# Active merchant public key for mandate verification
-ACTIVE_PUBLIC_KEY = os.getenv("SENTRY_PUBLIC_KEY", "")
+# Active merchant public key for mandate verification (loads shared keypair if env var unset)
+_shared_signer = get_shared_signer()
+ACTIVE_PUBLIC_KEY = os.getenv("SENTRY_PUBLIC_KEY") or _shared_signer.public_key_hex
 policy_engine = PolicyEngine(public_key_hex=ACTIVE_PUBLIC_KEY, state_store=audit_logger)
 storefront_service = StorefrontService(policy_engine, audit_logger, razorpay_executor)
 

@@ -76,6 +76,18 @@ class ApprovalAction(BaseModel):
     action: str  # "APPROVE" or "DENY"
 
 
+class PromptRequest(BaseModel):
+    prompt: str
+
+
+class CustomMandateRequest(BaseModel):
+    max_amount: int
+    allowed_categories: list[str]
+    max_quantity: int
+    autonomous_threshold: Optional[int] = None
+    single_use: bool = True
+
+
 @app.get("/api/mandate")
 def get_mandate():
     """Returns the current active spending mandate and public key."""
@@ -95,6 +107,51 @@ def reset_mandate():
     pending_approval_proposal = None
     current_mandate = create_default_mandate()
     return {"status": "reset", "mandate": current_mandate.model_dump()}
+
+
+@app.post("/api/mandate/create")
+def create_custom_mandate(req: CustomMandateRequest):
+    """Generates and cryptographically signs a custom mandate with Ed25519."""
+    global current_mandate
+    future = datetime.now(timezone.utc) + timedelta(hours=4)
+    mandate = SpendingMandate(
+        mandate_id=f"mnd_custom_{uuid.uuid4().hex[:8]}",
+        issued_to_agent="buyer-agent-01",
+        merchant_id="sentry-store",
+        max_amount=req.max_amount,
+        currency="INR",
+        allowed_categories=req.allowed_categories,
+        max_quantity=req.max_quantity,
+        expires_at=future,
+        single_use=req.single_use,
+        autonomous_threshold=req.autonomous_threshold
+    )
+    signed = signer.sign_mandate(mandate)
+    current_mandate = signed
+    audit_logger.log_event(
+        event="mandate_issued",
+        mandate_id=signed.mandate_id,
+        details={
+            "max_amount": signed.max_amount,
+            "allowed_categories": signed.allowed_categories,
+            "max_quantity": signed.max_quantity,
+            "autonomous_threshold": signed.autonomous_threshold,
+            "ed25519_signature": signed.signature
+        }
+    )
+    return {
+        "status": "created",
+        "mandate": signed.model_dump(),
+        "public_key_hex": signer.public_key_hex,
+        "is_signature_valid": True
+    }
+
+
+@app.post("/api/agent/prompt")
+def run_custom_agent_prompt(req: PromptRequest):
+    """Executes buyer agent with an arbitrary user prompt against active mandate."""
+    output = buyer_agent.run_agent(prompt=req.prompt, mandate=current_mandate)
+    return {"scenario": "custom_prompt", "prompt": req.prompt, "output": output}
 
 
 @app.get("/api/catalog")
