@@ -50,6 +50,7 @@
           <span class="badge badge-rzp">Razorpay Test Mode</span>
           <span class="badge badge-crypto">Ed25519 Signed</span>
         </div>
+        <button class="btn btn-uap" onclick="openUapModal()">📜 NPCI UAP Certificate</button>
         <button class="btn btn-tour" onclick="startVideoTour()">▶ Automated Video Tour</button>
         <button class="btn btn-catalog-view" onclick="openCatalogModal()">📦 View Catalog</button>
       </div>
@@ -65,6 +66,90 @@
         <span id="rzp-invariant-header-pill" class="invariant-pill">INVARIANT: 0 API CALLS ON REJECT</span>
       </div>
     </div>
+
+    <!-- Dual Track Command Center Switcher -->
+    <div class="command-center-tabs">
+      <button id="tab-btn-security" class="cmd-tab active" onclick="switchCommandTab('security')">
+        🛡️ TRACK 1B: SECURITY FIREWALL
+      </button>
+      <button id="tab-btn-growth" class="cmd-tab" onclick="switchCommandTab('growth')">
+        📈 TRACK 1A: MERCHANT AI UPSELL (+20.8% GMV)
+      </button>
+      <button id="tab-btn-recovery" class="cmd-tab" onclick="switchCommandTab('recovery')">
+        🔄 TRACK 1C: GRACEFUL FAILURE RECOVERY
+      </button>
+    </div>
+
+    <!-- Track 1A: Growth Panel (Hidden by default) -->
+    <section id="tab-panel-growth" class="growth-panel" style="display: none;">
+      <div class="growth-header">
+        <div>
+          <h3 style="color: #34d399; font-size: 1.1rem; margin-bottom: 4px;">📈 TRACK 1A: MERCHANT REVENUE &amp; UPSELL ENGINE</h3>
+          <p style="color: #94a3b8; font-size: 0.82rem;">Autonomous add-on bundler maximizing merchant basket size within customer's signed spending ceiling.</p>
+        </div>
+        <div class="gmv-badge">MERCHANT GMV GROWTH: +20.8%</div>
+      </div>
+      <div class="growth-grid">
+        <div class="growth-stat-card">
+          <div class="growth-stat-title">Base Item Proposal</div>
+          <div class="growth-stat-val">₹1,200 INR</div>
+          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">SKU-002 Silver Heart Necklace (1 unit)</div>
+        </div>
+        <div class="growth-stat-card">
+          <div class="growth-stat-title">Mandate Headroom Remaining</div>
+          <div class="growth-stat-val" style="color: #38bdf8;">₹300 INR</div>
+          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">Max Limit ₹1,500 - Base ₹1,200</div>
+        </div>
+        <div class="growth-stat-card">
+          <div class="growth-stat-title">Bundled Add-on Total</div>
+          <div class="growth-stat-val highlight-green">₹1,450 INR</div>
+          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">+ SKU-006 Gift Wrap (₹250) · Headroom Left: ₹50</div>
+        </div>
+      </div>
+      <div class="growth-actions">
+        <button class="btn btn-legit" onclick="runMerchantUpsellDemo()">
+          ⚡ Trigger Autonomous Merchant Upsell (+20.8% GMV)
+        </button>
+        <span style="font-size: 0.75rem; color: #94a3b8;">Buyer agent evaluates bundle, confirms ₹1,450 &le; ₹1,500 mandate, and creates Razorpay order.</span>
+      </div>
+    </section>
+
+    <!-- Track 1C: Graceful Failure Recovery Panel (Hidden by default) -->
+    <section id="tab-panel-recovery" class="recovery-panel" style="display: none;">
+      <div class="growth-header">
+        <div>
+          <h3 style="color: #fbbf24; font-size: 1.1rem; margin-bottom: 4px;">🔄 TRACK 1C: GRACEFUL FAILURE &amp; COUNTER-PROPOSAL RECOVERY</h3>
+          <p style="color: #94a3b8; font-size: 0.82rem;">Satisfies Razorpay criterion: "one failure handled gracefully" with autonomous remediation.</p>
+        </div>
+        <span class="badge" style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b;">AUTO-RECOVERABLE LOOP</span>
+      </div>
+      <div class="recovery-flow-grid">
+        <div class="recovery-step-box">
+          <span class="step-tag tag-fail">PHASE 1: ATTACK BLOCKED</span>
+          <h4 style="font-size: 0.9rem; margin-bottom: 4px;">Adversarial Injection (40 units)</h4>
+          <p style="font-size: 0.75rem; color: #94a3b8;">Agent tricked by catalog text requests ₹48,000. Sentry firewall blocks transaction.</p>
+          <div style="font-size: 0.72rem; color: #f87171; font-weight: 700; margin-top: 6px;">Razorpay API Calls: 0 ✓</div>
+        </div>
+        <div class="recovery-step-box">
+          <span class="step-tag tag-remediate">PHASE 2: COUNTER-PROPOSAL</span>
+          <h4 style="font-size: 0.9rem; margin-bottom: 4px;">Remediation Engine Calculation</h4>
+          <p style="font-size: 0.75rem; color: #94a3b8;">Calculates maximum quantity fitting ₹1,500 limit: 1 unit at ₹1,200 INR.</p>
+          <div style="font-size: 0.72rem; color: #fbbf24; font-weight: 700; margin-top: 6px;">Remediation: Counter-Proposal Offered</div>
+        </div>
+        <div class="recovery-step-box">
+          <span class="step-tag tag-recover">PHASE 3: AUTONOMOUS RECOVERY</span>
+          <h4 style="font-size: 0.9rem; margin-bottom: 4px;">Order Authorized &amp; Settled</h4>
+          <p style="font-size: 0.75rem; color: #94a3b8;">Buyer agent accepts counter-proposal; Razorpay order created cleanly.</p>
+          <div style="font-size: 0.72rem; color: #34d399; font-weight: 700; margin-top: 6px;">Status: Recovered &amp; Audited ✓</div>
+        </div>
+      </div>
+      <div class="growth-actions">
+        <button class="btn btn-accent" onclick="runGracefulRecoveryDemo()">
+          ⚡ Run Graceful Recovery Demo
+        </button>
+        <span style="font-size: 0.75rem; color: #94a3b8;">Executes full 3-phase loop and logs both rejection and recovery in immutable SQLite audit ledger.</span>
+      </div>
+    </section>
 
     <!-- Telemetry Performance Bar -->
     <section class="telemetry-bar">
@@ -175,6 +260,14 @@
         <button class="btn btn-accent" onclick="runScenario('human_approval')">
           <span class="btn-icon">👤</span>
           <span class="btn-text">Scenario F: Human Sign-off (P1)</span>
+        </button>
+        <button class="btn btn-legit" onclick="runScenario('upsell_growth')">
+          <span class="btn-icon">📈</span>
+          <span class="btn-text">Scenario G: Merchant Upsell (+20.8%)</span>
+        </button>
+        <button class="btn btn-warning" onclick="runScenario('graceful_recovery')">
+          <span class="btn-icon">🔄</span>
+          <span class="btn-text">Scenario H: Graceful Recovery Loop</span>
         </button>
         <button class="btn btn-reset" onclick="resetMandate()">
           <span class="btn-icon">🔄</span>
@@ -535,6 +628,24 @@
           <pre class="ap2-json" id="ap2-json-display">Loading AP2 Token...</pre>
           <div class="ap2-actions">
             <button class="btn btn-copy" onclick="copyAp2Token()">📋 Copy Token</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NPCI Unified Authorization Protocol (UAP 1.0-Draft) Certificate Modal -->
+    <div id="uap-modal" class="modal" style="display: none;">
+      <div class="modal-content ap2-modal-content">
+        <div class="modal-header">
+          <h3>📜 NPCI UNIFIED AUTHORIZATION PROTOCOL (UAP 1.0)</h3>
+          <button class="close-btn" onclick="closeUapModal()">✕</button>
+        </div>
+        <div class="ap2-body">
+          <p class="ap2-desc">Standardized NPCI UAP / W3C Verifiable Credential certificate with Ed25519 cryptographic signature proof for agentic commerce in India.</p>
+          <pre class="ap2-json" id="uap-json-display">Loading NPCI UAP Certificate...</pre>
+          <div class="ap2-actions">
+            <button class="btn btn-copy" onclick="copyUapCertificate()">📋 Copy Certificate</button>
+            <button class="btn btn-download" onclick="downloadUapCertificate()">⬇️ Download NPCI UAP Certificate (.json)</button>
           </div>
         </div>
       </div>

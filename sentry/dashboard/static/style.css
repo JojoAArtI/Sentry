@@ -1465,6 +1465,168 @@ body {
   font-weight: 700;
 }
 
+.btn-uap {
+  background: #1e1b4b;
+  color: #c7d2fe;
+  border: 1px solid #6366f1;
+  font-weight: 600;
+}
+
+.btn-uap:hover {
+  background: #312e81;
+  color: #fff;
+}
+
+.btn-download {
+  background: #059669;
+  color: #fff;
+  font-weight: 700;
+  margin-left: 8px;
+}
+
+.btn-download:hover {
+  background: #10b981;
+}
+
+/* Command Center Navigation Tabs */
+.command-center-tabs {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.cmd-tab {
+  background: #111827;
+  border: 1px solid #374151;
+  color: #9ca3af;
+  padding: 10px 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cmd-tab:hover {
+  background: #1f2937;
+  color: #f3f4f6;
+}
+
+.cmd-tab.active {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+}
+
+/* Growth & Upsell Tab Panel */
+.growth-panel {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(17, 24, 39, 0.95) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.growth-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.gmv-badge {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid #10b981;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  font-size: 0.9rem;
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.growth-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.growth-stat-card {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 14px;
+}
+
+.growth-stat-title {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+}
+
+.growth-stat-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.growth-stat-val.highlight-green {
+  color: #34d399;
+}
+
+.growth-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Recovery Tab Panel */
+.recovery-panel {
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.08) 0%, rgba(17, 24, 39, 0.95) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.recovery-flow-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.recovery-step-box {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 6px;
+  padding: 14px;
+  position: relative;
+}
+
+.step-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 8px;
+}
+
+.tag-fail { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+.tag-remediate { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+.tag-recover { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+
 .footer {
   text-align: center;
   margin-top: 24px;

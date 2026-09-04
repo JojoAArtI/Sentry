@@ -857,3 +857,150 @@ function prevTourStep() {
     goToTourStep(tourCurrentStep - 1);
   }
 }
+
+// ---------------------------------------------------------------------------
+// DUAL TRACK COMMAND CENTER SWITCHER
+// ---------------------------------------------------------------------------
+function switchCommandTab(tabId) {
+  const tabs = ['security', 'growth', 'recovery'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`tab-btn-${t}`);
+    if (btn) btn.classList.remove('active');
+  });
+
+  const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+  if (activeBtn) activeBtn.classList.add('active');
+
+  const growthPanel = document.getElementById('tab-panel-growth');
+  const recoveryPanel = document.getElementById('tab-panel-recovery');
+  const secContainer = document.getElementById('scenarios-container');
+
+  if (tabId === 'growth') {
+    if (growthPanel) growthPanel.style.display = 'block';
+    if (recoveryPanel) recoveryPanel.style.display = 'none';
+    if (secContainer) secContainer.style.display = 'none';
+  } else if (tabId === 'recovery') {
+    if (growthPanel) growthPanel.style.display = 'none';
+    if (recoveryPanel) recoveryPanel.style.display = 'block';
+    if (secContainer) secContainer.style.display = 'none';
+  } else {
+    if (growthPanel) growthPanel.style.display = 'none';
+    if (recoveryPanel) recoveryPanel.style.display = 'none';
+    if (secContainer) secContainer.style.display = 'block';
+  }
+}
+
+// ---------------------------------------------------------------------------
+// MERCHANT AI UPSELL & HEADROOM BUNDLER DEMO
+// ---------------------------------------------------------------------------
+async function runMerchantUpsellDemo() {
+  animatePipelineEvaluating();
+  const feed = document.getElementById('agent-activity-feed');
+  feed.innerHTML = '<div class="feed-item"><span class="feed-desc">Merchant AI Upsell Engine inspecting mandate headroom...</span></div>';
+
+  try {
+    const res = await fetch('/api/storefront/upsell', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sku: 'SKU-002', quantity: 1 })
+    });
+    const data = await res.json();
+
+    if (data.status === 'upsell_authorized') {
+      const bundle = data.upsell_bundle;
+      const fin = bundle.financial_breakdown;
+      renderAgentFeed([
+        { step: 'list_products', details: { message: `Buyer browsing for gifts under ₹${fin.mandate_max_limit} INR` } },
+        { step: 'propose_purchase', details: { message: `Buyer proposed ${bundle.original_item.name} (₹${bundle.original_item.amount} INR)` } },
+        { step: 'upsell_offered', details: { message: `Merchant Agent found ₹${fin.headroom_before} INR headroom -> Bundled ${bundle.add_on.name} (+₹${bundle.add_on.price} INR, +${fin.gmv_growth_percentage}% GMV)` } },
+        { step: 'verdict_received', details: { decision: 'APPROVED', reason: `Transaction satisfies all signed mandate constraints: ₹${fin.bundled_total} <= ₹${fin.mandate_max_limit}` } }
+      ]);
+      renderVerdict(data.firewall_result, bundle.bundled_proposal);
+      alert(`🎉 Merchant Revenue Engine Success!\nBundled: ${bundle.add_on.name}\nGMV Growth: +${data.gmv_growth_percentage}%\nBasket Total: ₹${fin.bundled_total} INR (Within ₹${fin.mandate_max_limit} INR Limit)`);
+    } else {
+      alert('Upsell declined: ' + JSON.stringify(data));
+    }
+
+    await fetchMandate();
+    await fetchAuditTrail();
+    await fetchStatus();
+    await fetchTelemetry();
+  } catch (err) {
+    alert('Upsell demo failed: ' + err.message);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// GRACEFUL FAILURE & COUNTER-PROPOSAL RECOVERY DEMO
+// ---------------------------------------------------------------------------
+async function runGracefulRecoveryDemo() {
+  animatePipelineEvaluating();
+  const feed = document.getElementById('agent-activity-feed');
+  feed.innerHTML = '<div class="feed-item"><span class="feed-desc">Simulating adversarial prompt injection attack...</span></div>';
+
+  try {
+    const res = await fetch('/api/policy/counter-proposal', { method: 'POST' });
+    const data = await res.json();
+
+    if (data.status === 'gracefully_recovered') {
+      const attack = data.attack_phase;
+      const remediation = data.remediation_phase;
+      const recovery = data.recovery_phase;
+
+      renderAgentFeed([
+        { step: 'adversarial_content_detected', details: { message: `Adversarial Injection compelled agent to order 40 units (₹${attack.proposal.total_amount.toLocaleString('en-IN')} INR)` } },
+        { step: 'verdict_received', details: { decision: 'REJECTED', reason: attack.verdict.reason } },
+        { step: 'counter_proposal_received', details: { message: `Sentry Remediation Engine: ${remediation.remediation.rationale}` } },
+        { step: 'recovery_executed', details: { message: `Buyer agent accepted counter-proposal; authorized 1 unit (₹${recovery.proposal.total_amount.toLocaleString('en-IN')} INR) with Razorpay Test Order` } }
+      ]);
+
+      renderVerdict(
+        { decision: { decision: 'APPROVED', reason: 'Autonomous recovery order satisfies all signed mandate constraints.' }, order: recovery.order },
+        recovery.proposal
+      );
+
+      alert(`🛡️ One Failure Handled Gracefully!\nPhase 1: 40-unit attack BLOCKED (0 Razorpay calls)\nPhase 2: Counter-proposal generated (1 unit @ ₹1,200)\nPhase 3: Order recovered autonomously!`);
+    }
+
+    await fetchMandate();
+    await fetchAuditTrail();
+    await fetchStatus();
+    await fetchTelemetry();
+  } catch (err) {
+    alert('Graceful recovery demo failed: ' + err.message);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// NPCI UAP (UNIFIED AUTHORIZATION PROTOCOL) MODAL & DOWNLOAD
+// ---------------------------------------------------------------------------
+async function openUapModal() {
+  const modal = document.getElementById('uap-modal');
+  const display = document.getElementById('uap-json-display');
+  display.textContent = 'Loading NPCI Unified Authorization Protocol (UAP 1.0) Certificate...';
+  modal.style.display = 'flex';
+
+  try {
+    const res = await fetch('/api/uap/credential');
+    const token = await res.json();
+    display.textContent = JSON.stringify(token, null, 2);
+  } catch (err) {
+    display.textContent = 'Error fetching UAP Certificate: ' + err.message;
+  }
+}
+
+function closeUapModal() {
+  const modal = document.getElementById('uap-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function copyUapCertificate() {
+  const display = document.getElementById('uap-json-display');
+  navigator.clipboard.writeText(display.textContent).then(() => {
+    alert('NPCI UAP Certificate copied to clipboard! ✓');
+  });
+}
+
+function downloadUapCertificate() {
+  window.location.href = '/api/uap/download';
+}

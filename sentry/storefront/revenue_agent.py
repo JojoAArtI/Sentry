@@ -63,14 +63,29 @@ class MerchantRevenueAgent:
         headroom_after = mandate.max_amount - bundled_total
         gmv_growth_pct = round(((bundled_total - base_proposal.total_amount) / base_proposal.total_amount) * 100, 1)
 
+        bundle_sku = f"{base_proposal.sku}+{add_on.sku}"
+        bundle_name = f"{base_proposal.item_name} + {add_on.name}"
+
+        # Register authoritative bundle product in merchant catalog
+        CATALOG[bundle_sku] = Product(
+            sku=bundle_sku,
+            name=bundle_name,
+            price=bundled_total,
+            currency=mandate.currency,
+            category=base_proposal.category,
+            stock=add_on.stock,
+            description=f"Curated bundle: {base_proposal.item_name} packaged with {add_on.name}.",
+            has_injection=False
+        )
+
         # Create bundled proposal representation
         bundled_proposal = TransactionProposal(
             proposal_id=f"prop_upsell_{base_proposal.proposal_id}",
             mandate_id=mandate.mandate_id,
-            sku=base_proposal.sku,
-            item_name=f"{base_proposal.item_name} + {add_on.name}",
+            sku=bundle_sku,
+            item_name=bundle_name,
             quantity=base_proposal.quantity,
-            unit_price=base_proposal.unit_price,
+            unit_price=bundled_total,
             total_amount=bundled_total,
             currency=mandate.currency,
             merchant_id=self.merchant_id,

@@ -245,6 +245,10 @@ def get_test_payment_signature(order_id: str, payment_id: str):
 @app.post("/api/storefront/upsell")
 def run_merchant_upsell(req: Optional[UpsellRequest] = None):
     """Evaluates proposal against active mandate headroom and bundles high-margin add-on."""
+    global current_mandate
+    if audit_logger.is_mandate_used(current_mandate.mandate_id):
+        current_mandate = create_default_mandate()
+
     sku = req.sku if req and req.sku else "SKU-002"
     quantity = req.quantity if req and req.quantity else 1
     product = get_catalog_product(sku)
@@ -302,6 +306,10 @@ def download_uap_certificate():
 @app.post("/api/policy/counter-proposal")
 def run_counter_proposal_flow():
     """Simulates prompt injection failure, generates explainable counter-proposal, and executes autonomous recovery."""
+    global current_mandate
+    if audit_logger.is_mandate_used(current_mandate.mandate_id):
+        current_mandate = create_default_mandate()
+
     attack_proposal = TransactionProposal(
         proposal_id=f"prop_attack_{uuid.uuid4().hex[:8]}",
         sku="SKU-002",
