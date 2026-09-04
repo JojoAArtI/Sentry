@@ -224,6 +224,13 @@ def verify_payment(req: PaymentVerifyRequest):
     }
 
 
+@app.get("/api/payment/test-signature")
+def get_test_payment_signature(order_id: str, payment_id: str):
+    """Returns valid HMAC-SHA256 test signature for checkout verification."""
+    sig = razorpay_executor.generate_test_signature(order_id=order_id, payment_id=payment_id)
+    return {"order_id": order_id, "payment_id": payment_id, "signature": sig}
+
+
 @app.get("/api/mandate/export-ap2")
 def export_ap2_mandate():
     """Exports active mandate in W3C Verifiable Credential / AP2 protocol format."""
