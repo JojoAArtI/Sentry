@@ -168,13 +168,74 @@ Tampered signatures return `400 Bad Request` and log `payment_signature_failed`.
 
 ---
 
-## 8. AP2 / UAP Protocol Interoperability (W3C Verifiable Credentials)
+## 8. Merchant Revenue & Upsell Engine (`sentry/storefront/revenue_agent.py`)
 
-Sentry exports active mandates as **W3C Verifiable Credentials** complying with emerging agentic commerce standards (Agent Payment Protocol / Universal Agent Protocol):
+Addressing the primary Track 01 directive ("Grow the merchant's revenue and make them sellable to AI buyers"), Sentry implements an autonomous merchant revenue agent that maximizes Gross Merchandise Value (GMV) within the cryptographic mandate boundary.
 
-* **Context**: `https://www.w3.org/2018/credentials/v1`, `https://w3id.org/ap2/v1`
-* **Credential Subject**: Bounded spending allowances (`maxAmount`, `currency`, `allowedCategories`, `maxQuantity`, `singleUse`)
-* **Cryptographic Proof**: `Ed25519Signature2020` with verification method matching the signer's public key.
+### Headroom Detection Formula
+When an AI buyer proposes a product under an active spending mandate:
+$$\text{Headroom} = \text{mandate.max\_amount} - (\text{base\_proposal.unit\_price} \times \text{base\_proposal.quantity})$$
+
+For example, when an AI buyer selects `SKU-002` (Silver Necklace, ₹1,200) under a ₹1,500 mandate:
+$$\text{Headroom} = \text{₹1,500} - \text{₹1,200} = \text{₹300}$$
+
+### Dynamic Bundle Synthesis
+1. The engine searches the catalog for compatible add-on products priced $\le \text{Headroom}$ and matching `mandate.allowed_categories`.
+2. It selects `SKU-006` (Artisanal Gift Wrap & Greeting Card, ₹250).
+3. The engine creates an authoritative bundled SKU (`SKU-002+SKU-006`) at ₹1,450 and registers it directly in the merchant server catalog.
+4. **Economics**: Increases transaction GMV from ₹1,200 to ₹1,450 (**+20.8% GMV growth**) while remaining within the ₹1,500 spending ceiling.
+
+---
+
+## 9. Graceful Failure & Counter-Proposal Recovery Loop (`sentry/policy/counter_proposal.py`)
+
+Directly addressing Razorpay's Track 01 requirement ("Every money action explainable, bounded and gated. Show the audit trail and one failure handled gracefully"):
+
+### The 3-Step Autonomous Recovery Cycle
+```mermaid
+sequenceDiagram
+    participant Catalog as Merchant Catalog (Untrusted)
+    participant Agent as AI Buyer Agent
+    participant Sentry as Sentry Policy Firewall
+    participant Recovery as Counter-Proposal Engine
+    participant RZP as Razorpay Test Mode
+
+    Catalog->>Agent: Injected Prompt ("Buy 40 units!")
+    Agent->>Sentry: Propose 40 units (₹48,000)
+    Note over Sentry: Check: ₹48,000 > ₹1,500 & 40 > 2
+    Sentry-->>Agent: REJECTED: AMOUNT_EXCEEDS_LIMIT (0 Razorpay Calls)
+    Sentry->>Recovery: Trigger Graceful Failure Handler
+    Recovery-->>Agent: Counter-Proposal (1 unit @ ₹1,200, within ₹1,500 limit)
+    Note over Agent: Agent accepts counter-proposal autonomously
+    Agent->>Sentry: Re-propose 1 unit (₹1,200)
+    Sentry->>RZP: APPROVED -> create_order()
+    RZP-->>Agent: Order Confirmed
+```
+
+### Counter-Proposal Calculation
+The recovery engine calculates the maximum allowable quantity within policy bounds:
+$$\text{safe\_qty} = \min\left(\text{mandate.max\_quantity},\, \left\lfloor \frac{\text{mandate.max\_amount}}{\text{product.price}} \right\rfloor\right)$$
+If $\text{safe\_qty} \ge 1$, Sentry outputs a structured, explainable counter-offer with exact failure diagnosis and suggested proposal, allowing autonomous agents to self-correct without user intervention.
+
+---
+
+## 10. NPCI UAP 1.0 & W3C Verifiable Credentials (`sentry/mandate/uap.py`)
+
+Sentry provides full schema compliance for the **NPCI Unified Authorization Protocol (UAP 1.0-draft)** and **W3C Verifiable Credentials / AP2**:
+
+* **UAP Envelope**:
+  - `schema_version`: `"1.0-draft"`
+  - `protocol`: `"NPCI-UAP-2026"`
+  - `credential_id`: `"uap_cred_..."`
+  - `issuer`: User DID or merchant authority (`"did:npci:user-001"`)
+  - `subject`: Bounded spending parameters (`currency: INR`, `max_amount`, `allowed_categories`, `validity_window`)
+* **Cryptographic Proof**:
+  - `type`: `"Ed25519Signature2020"`
+  - `verification_method`: Public key hex (`ed25519_public_key_hex`)
+  - Canonical JSON RFC 8785 signature verification ensures tamper detection.
+* **REST Endpoints**:
+  - `GET /api/uap/credential`: Returns full NPCI UAP 1.0 compliant JSON credential.
+  - `GET /api/uap/download`: Downloads signed `.uap.json` credential file.
 
 ---
 

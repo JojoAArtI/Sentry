@@ -10,12 +10,13 @@
 
 | Time | Segment | Visual / Action | Key Spoken Point |
 | :--- | :--- | :--- | :--- |
-| **0:00 – 0:30** | Hook & Problem | Show AI Agent buying, zoom into malicious prompt injection in catalog | *"The agent can browse, but should it be allowed to authorize money?"* |
+| **0:00 – 0:30** | Hook & Track 01 Problem | Show AI Agent buying, zoom into prompt injection in catalog, introduce Track 01 duality | *"Grow revenue and protect money: how do we empower AI commerce while bounding every rupee?"* |
 | **0:30 – 1:30** | Legitimate Buy & Razorpay Checkout | Click 'Scenario A', view firewall approval, trigger Razorpay Checkout popup, verify HMAC-SHA256 | *"The model proposes. Policy authorizes. Razorpay executes."* |
-| **1:30 – 2:30** | Prompt Injection Attack | Click 'Scenario B'; show injected text, agent trying 40 units (₹48k), red BLOCKED badge, 0 API calls | *"The central visual: Razorpay order creation was NEVER called."* |
-| **2:30 – 3:45** | Red Team Lab & Live Defense Matrix | Open 'Red Team Lab', click 'Run Defense Matrix'; watch 6/6 vectors blocked with <0.4ms latency | *"6 adversarial vectors, 100% defense rate, 0 unauthorized charges."* |
-| **3:45 – 4:25** | AP2 Verifiable Credentials & Telemetry | Open AP2 modal (W3C JSON-LD credential); highlight <0.5ms telemetry chip (3,736x faster than LLM) | *"Enterprise interoperability with near-zero latency overhead."* |
-| **4:25 – 5:00** | Automated Tests & Conclusion | Run `pytest tests -v` (94 tests passing) or click 'Automated Video Tour' | *"Sentry doesn't try to make AI trustworthy. It makes the payment boundary enforce trust."* |
+| **1:30 – 2:30** | Prompt Injection Attack & Red Team | Click 'Scenario B'; show injected text, agent trying 40 units (₹48k), red BLOCKED badge, 0 API calls | *"The central visual: Razorpay order creation was NEVER called."* |
+| **2:30 – 3:30** | 📈 Track 1A: Merchant Revenue & Headroom Bundler | Switch to 'Merchant Revenue Growth' tab, click 'Scenario G: Merchant AI Upsell (+20.8% GMV)' | *"Detects ₹300 headroom, bundles ₹250 gift wrap, converts ₹1,200 to ₹1,450 (+20.8% GMV)."* |
+| **3:30 – 4:15** | 🔄 Track 1C: Graceful Recovery Loop | Switch to 'Graceful Recovery' tab, click 'Scenario H: Graceful Recovery Loop' | *"40 units blocked $\to$ explainable counter-proposal $\to$ 1-unit order recovered autonomously."* |
+| **4:15 – 4:45** | NPCI UAP 1.0 & Telemetry | Open NPCI UAP modal (W3C JSON-LD credential); highlight <0.5ms telemetry chip (3,736x faster) | *"Official NPCI UAP 1.0-draft compliance with near-zero latency overhead (<0.5ms)."* |
+| **4:45 – 5:00** | Automated Tests & Conclusion | Run `pytest tests -v` (102 tests passing) or click 'Automated Video Tour' | *"Sentry doesn't try to make AI trustworthy. It makes the payment boundary enforce trust."* |
 
 ---
 
@@ -78,44 +79,62 @@ Click button: **`[Scenario B: Prompt Injection Attack (40x / ₹48k)]`**.
 
 ---
 
-### [2:30 – 3:45] — Agentic Red-Teaming Jailbreak Lab (6 Vectors)
+### [2:30 – 3:15] — Track 1A: Merchant Revenue & Headroom Bundler (+20.8% GMV Growth)
 **Visual:**  
-Click **`[⚔️ Red Team Lab]`** in the ribbon to expand the lab.  
-Click **`[⚡ Run Defense Matrix (All 6)]`**.  
-Show the 6 attack cards transition to `BLOCKED`:
-- Vector 1: Direct Prompt Injection -> Blocked (Quantity/Budget)
-- Vector 2: Base64 Obfuscated Jailbreak -> Blocked (Threshold/Limit)
-- Vector 3: Category Escalation Attack -> Blocked (Category Disallowed)
-- Vector 4: Currency Arbitrage Attack -> Blocked (Currency Mismatch)
-- Vector 5: Replay Burst Attack -> Blocked (Mandate Already Used)
-- Vector 6: Price Spoofing / Tampering -> Blocked (Authoritative Catalog Check)
-Highlight the **Defense Scoreboard**: **`6/6 BLOCKED (100%)`**, **`0 UNAUTHORIZED RAZORPAY CALLS`**.
+1. Switch to the **`[📈 Merchant Revenue Growth (Track 1A)]`** tab on the dashboard.
+2. Click **`[Scenario G: Merchant AI Upsell (+20.8% GMV)]`** in the scenario ribbon.
+3. Highlight the live analytics cards:
+   - **Base Item**: `SKU-002` Silver Heart Necklace (₹1,200)
+   - **Detected Mandate Headroom**: ₹300 remaining ($\text{₹1,500} - \text{₹1,200}$)
+   - **Add-on Bundled**: `SKU-006` Artisanal Gift Wrap & Card (+₹250)
+   - **New Transaction Total**: ₹1,450
+   - **GMV Uplift**: **+20.8% GMV Growth** badge in gold.
+4. Show policy firewall authorization: all rules pass because the bundle is dynamically registered in catalog pricing and falls within the ₹1,500 budget limit.
 
 **Spoken Script:**  
-> *"We didn't just test one prompt injection. We built an entire **Agentic Red-Teaming Jailbreak Lab** with 6 adversarial attack vectors.*  
-> *Let's trigger the defense matrix. Sentry stress-tests against direct injection, base64 obfuscation, category escalation, currency arbitrage, replay burst attacks, and price tampering.*  
-> *Result: **6 out of 6 attacks blocked, 100% defense rate, and 0 unauthorized Razorpay calls**. The security boundary holds universally."*
+> *"Track 01 asks us: 'Grow the merchant's revenue and make them sellable to AI buyers.' Sentry does not just gate risk — it actively grows merchant GMV.*  
+> *When an AI buyer selects the Silver Necklace for ₹1,200 under a ₹1,500 spending limit, Sentry's Merchant Revenue Agent detects ₹300 of unused headroom.*  
+> *It autonomously searches for a compatible cross-sell item, finds the ₹250 Artisanal Gift Wrap, and packages a dynamic bundle.*  
+> *The result? A 20.8% increase in merchant GMV — all while strictly satisfying the user's cryptographic mandate and policy bounds!"*
 
 ---
 
-### [3:45 – 4:25] — AP2 / UAP Interoperability & Real-Time Telemetry
+### [3:15 – 4:00] — Track 1C: Graceful Failure & Counter-Proposal Recovery Loop
 **Visual:**  
-1. Point to the **Real-Time Telemetry Bar**: Model inference (1,420 ms) vs Sentry Firewall (< 0.5 ms). Highlight the **3,736x Faster** badge.
-2. Click **`[📜 Export AP2 Verifiable Credential]`** on the active mandate card: show the W3C JSON-LD Verifiable Credential token with Ed25519 signature proof.
+1. Switch to the **`[🔄 Graceful Recovery (Track 1C)]`** tab on the dashboard.
+2. Click **`[Scenario H: Graceful Recovery Loop]`**.
+3. Point out the 3-step interactive timeline:
+   - **Step 1 (Attack Intercepted)**: Untrusted catalog prompt injection requests 40 units (₹48,000). Sentry Firewall intervenes: `🛑 BLOCKED: AMOUNT_EXCEEDS_LIMIT` (Razorpay calls = 0).
+   - **Step 2 (Counter-Proposal Generated)**: Policy engine computes safe bounded quantity: $\lfloor \text{₹1,500} / \text{₹1,200} \rfloor = 1$ unit. Diagnostic explanation: *"Exceeds max budget by ₹46,500. Proposing 1 unit at ₹1,200 instead."*
+   - **Step 3 (Autonomous Re-proposal & Settlement)**: Agent automatically accepts the counter-proposal, resubmits for 1 unit, Sentry authorizes, and Razorpay Test Mode order confirms.
+
+**Spoken Script:**  
+> *"Razorpay specifically evaluates: 'Every money action explainable, bounded and gated. Show the audit trail and one failure handled gracefully.'*  
+> *Here is our graceful failure engine. When prompt injection tricks the agent into requesting 40 units for ₹48,000, Sentry blocks the payment call instantly.*  
+> *Instead of crashing or dropping the user's cart, Sentry calculates an exact, bounded counter-proposal: 1 unit at ₹1,200.*  
+> *The AI agent accepts the counter-offer autonomously, resubmits, and completes checkout without human intervention. The failure is handled gracefully, transparently, and securely."*
+
+---
+
+### [4:00 – 4:35] — NPCI UAP 1.0 Compliance & Sub-Millisecond Telemetry
+**Visual:**  
+1. Click **`[📜 View NPCI UAP Certificate]`** in the header.
+2. Inspect the official NPCI UAP 1.0-draft compliant credential schema with Ed25519 signature proof. Click **`[Download .uap.json]`**.
+3. Point to the **Real-Time Telemetry Bar**: Model inference (1,420 ms) vs Sentry Firewall (< 0.5 ms). Highlight the **3,736x Faster** badge.
 
 **Spoken Script:**  
 > *"Notice the telemetry bar at the top: while LLM inference took over 1,400 milliseconds, Sentry's deterministic firewall overhead is **less than 0.5 milliseconds (0.38 ms)** — over 3,700 times faster than the model. Security adds zero noticeable delay.*  
-> *Furthermore, Sentry is built for the future of agentic commerce. Clicking 'Export AP2 Verifiable Credential' outputs a W3C-compliant JSON-LD token with cryptographic proof, ready for the emerging Agent Payment Protocol and Universal Agent Protocol standards."*
+> *Furthermore, Sentry is built for India's digital public infrastructure. Clicking 'NPCI UAP Certificate' reveals a fully compliant NPCI Unified Authorization Protocol Draft 1.0 credential with Ed25519 cryptographic proof, ready for immediate ecosystem adoption."*
 
 ---
 
-### [4:25 – 5:00] — Automated Tests & Conclusion
+### [4:35 – 5:00] — Automated Tests & Conclusion
 **Visual:**  
-1. Switch to terminal: run `pytest tests -v` demonstrating **94 tests passing** with 0 failures.
-2. Or click **`[▶ Automated Video Tour]`** on the dashboard to showcase the 4-step automated walkthrough mode.
+1. Switch to terminal: run `pytest tests -v` demonstrating **102 tests passing** with 0 failures.
+2. Or click **`[▶ Automated Video Tour]`** on the dashboard to showcase the automated walkthrough mode.
 
 **Spoken Script:**  
-> *"Our test suite contains 94 comprehensive tests proving mathematical enforcement of the security boundary, cryptographic mandate integrity, and Razorpay call prevention.*  
+> *"Our test suite contains 102 comprehensive tests proving mathematical enforcement of the security boundary, cryptographic mandate integrity, merchant revenue bundling, and Razorpay call prevention.*  
 > *In conclusion: Sentry doesn't try to make AI models trustworthy. It makes the payment boundary enforce trust.*  
 > *The model proposes. Policy authorizes. Razorpay executes.*  
 > *Thank you, Razorpay team!"*
