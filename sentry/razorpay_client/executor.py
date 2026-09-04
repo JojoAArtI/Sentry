@@ -91,3 +91,31 @@ class RazorpayExecutor:
             "created_at": int(time.time()),
             "mode": "test"
         }
+
+    def verify_payment_signature(
+        self,
+        order_id: str,
+        payment_id: str,
+        signature: str
+    ) -> bool:
+        """Verifies Razorpay payment signature using HMAC-SHA256.
+        
+        Formula:
+          HMAC-SHA256(order_id + '|' + payment_id, secret) == signature
+        """
+        import hmac
+        import hashlib
+
+        secret = self.key_secret or "test_secret_sentry_2026"
+        msg = f"{order_id}|{payment_id}".encode("utf-8")
+        expected = hmac.new(secret.encode("utf-8"), msg, hashlib.sha256).hexdigest()
+        return hmac.compare_digest(expected, signature)
+
+    def generate_test_signature(self, order_id: str, payment_id: str) -> str:
+        """Generates valid HMAC-SHA256 signature for test/simulation checkouts."""
+        import hmac
+        import hashlib
+
+        secret = self.key_secret or "test_secret_sentry_2026"
+        msg = f"{order_id}|{payment_id}".encode("utf-8")
+        return hmac.new(secret.encode("utf-8"), msg, hashlib.sha256).hexdigest()

@@ -46,6 +46,41 @@ class SpendingMandate(BaseModel):
         }
         return json.dumps(data, sort_keys=True, separators=(",", ":")).encode("utf-8")
 
+    def to_ap2_token(self, public_key_hex: Optional[str] = None) -> dict:
+        """Exports mandate to AP2 / UAP compliant W3C Verifiable Credential format."""
+        pub = public_key_hex or "unknown-issuer"
+        exp_str = self.expires_at.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        return {
+            "@context": [
+                "https://www.w3.org/2018/credentials/v1",
+                "https://w3id.org/agent-payments/v1"
+            ],
+            "id": f"urn:uuid:{self.mandate_id}",
+            "type": ["VerifiableCredential", "AgentSpendingMandate"],
+            "issuer": f"did:key:z{pub[:32]}",
+            "issuanceDate": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "expirationDate": exp_str,
+            "credentialSubject": {
+                "id": f"urn:agent:{self.issued_to_agent}",
+                "spendingLimit": {
+                    "amount": self.max_amount,
+                    "currency": self.currency
+                },
+                "allowedCategories": sorted(self.allowed_categories),
+                "maxQuantity": self.max_quantity,
+                "merchantScope": self.merchant_id,
+                "singleUse": self.single_use,
+                "autonomousThreshold": self.autonomous_threshold
+            },
+            "proof": {
+                "type": "Ed25519Signature2020",
+                "created": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "proofPurpose": "assertionMethod",
+                "verificationMethod": f"did:key:z{pub[:32]}#key-1",
+                "signatureValue": self.signature or ""
+            }
+        }
+
 
 class MandateSignature(BaseModel):
     """Signature payload containing the public key and Ed25519 signature."""
