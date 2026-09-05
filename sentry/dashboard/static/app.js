@@ -372,6 +372,12 @@ async function openCatalogModal() {
     const products = await res.json();
     grid.innerHTML = '';
 
+    const categoryIcons = {
+      flowers: '💐',
+      gifts: '🎁',
+      electronics: '🎧'
+    };
+
     products.forEach(p => {
       const card = document.createElement('div');
       card.className = 'catalog-card-item' + (p.has_injection ? ' has-adversarial' : '');
@@ -386,12 +392,20 @@ async function openCatalogModal() {
         `;
       }
 
+      const icon = categoryIcons[p.category] || '📦';
       card.innerHTML = `
+        <div class="editorial-photo-tile" style="width: 100%; height: 90px; margin: 0 0 14px 0; border-radius: 10px;">
+          <svg viewBox="0 0 240 90" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="90" fill="#121613"/>
+            <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" font-size="34" fill="#93b799">${icon}</text>
+            <rect x="8" y="8" width="224" height="74" stroke="#fafffa" stroke-width="1" fill="none" opacity="0.3"/>
+          </svg>
+        </div>
         <div class="catalog-card-header">
           <h4>${p.name}</h4>
           <span class="catalog-price">₹${p.price.toLocaleString('en-IN')}</span>
         </div>
-        <div style="font-size:0.75rem; color: #94a3b8;">SKU: <code>${p.sku}</code> | Category: <strong>${p.category}</strong></div>
+        <div style="font-size:0.75rem; color: var(--color-newsprint-gray); text-transform: uppercase;">SKU: <code>${p.sku}</code> | Category: <strong>${p.category}</strong></div>
         <div class="catalog-desc">${p.description}</div>
         ${injectionWarning}
       `;

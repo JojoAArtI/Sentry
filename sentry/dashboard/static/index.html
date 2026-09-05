@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SENTRY — Payment Authorization Firewall</title>
+  <title>SENTRY — Deterministic Payment Authorization Firewall</title>
   <link rel="stylesheet" href="/static/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,550;0,6..72,600;1,6..72,300;1,6..72,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@200;350;400;550;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <!-- Official Razorpay Checkout SDK -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
@@ -35,18 +35,34 @@
       </div>
     </div>
 
+    <!-- Broadsheet Masthead Top Strip -->
+    <div class="broadsheet-masthead-top">
+      <div class="volume-info">
+        <span>VOL. I — NO. 01</span>
+        <span class="issue-bullet">●</span>
+        <span>RAZORPAY AI BUILDATHON 2026</span>
+        <span class="issue-bullet">●</span>
+        <span>TRACK 01: AI GROWTH &amp; AGENTIC COMMERCE</span>
+      </div>
+      <div>
+        <span>THE SENTRY FINANCIAL &amp; AGENTIC CHRONICLE</span>
+      </div>
+      <div>
+        <span>MUMBAI &amp; GLOBAL · TEST MODE EXECUTION</span>
+      </div>
+    </div>
+
     <!-- Header -->
     <header class="top-header">
       <div class="brand">
-        <div class="shield-logo">🛡️</div>
-        <div class="title-group">
-          <h1>SENTRY</h1>
-          <p class="subtitle">Deterministic Payment Authorization Firewall for Agentic Commerce</p>
+        <div class="brand-wordmark-container">
+          <span class="brand-wordmark">SENTRY</span>
         </div>
+        <span class="subtitle">Deterministic Payment Authorization Firewall for Agentic Commerce</span>
       </div>
       <div class="header-right">
         <div class="badges">
-          <span class="badge badge-track">Track 01: Agentic Commerce</span>
+          <span class="badge badge-track">Track 01</span>
           <span class="badge badge-rzp">Razorpay Test Mode</span>
           <span class="badge badge-crypto">Ed25519 Signed</span>
         </div>
@@ -56,11 +72,37 @@
       </div>
     </header>
 
-    <!-- Core Principle Banner -->
+    <!-- Monumental Hero Editorial Section (From design.md) -->
+    <section class="editorial-hero-section">
+      <div class="editorial-hero-tagline">
+        <span class="category-tag">EDITORIAL BROADSHEET IN A GREEN ROOM · AUTONOMOUS SPENDING GATEWAY</span>
+        <span class="broadsheet-date-stamp">March 2026 Edition · Financial Times Inspired</span>
+      </div>
+      <h1 class="monumental-display-headline">
+        THE MODEL PROPOSES.
+        <span class="editorial-photo-tile" title="Documentary Broadsheet Seal">
+          <svg viewBox="0 0 200 80" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <rect width="200" height="80" fill="#121613"/>
+            <circle cx="100" cy="40" r="32" stroke="#fafffa" stroke-width="2" fill="none"/>
+            <path d="M100 16 L108 34 L128 34 L112 46 L118 64 L100 52 L82 64 L88 46 L72 34 L92 34 Z" fill="#93b799"/>
+            <line x1="20" y1="40" x2="60" y2="40" stroke="#fafffa" stroke-width="1"/>
+            <line x1="140" y1="40" x2="180" y2="40" stroke="#fafffa" stroke-width="1"/>
+          </svg>
+        </span>
+        POLICY AUTHORIZES.
+        <em class="italic-voice">RAZORPAY EXECUTES.</em>
+      </h1>
+      <p class="editorial-hero-deck">
+        A cryptographic spending boundary for autonomous AI buyers. The model is permitted to explore products and propose transactions, but possesses <strong>zero direct authority</strong> to execute payments or invoke payment APIs. Pure deterministic policy guarantees that an adversarial prompt injection can never compromise user funds.
+      </p>
+    </section>
+
+    <!-- Core Principle Banner (Highlighter Green marker swipe) -->
     <div class="principle-banner">
       <div class="principle-left">
         <span class="pulse-dot"></span>
-        <span class="highlight">CORE PRINCIPLE:</span> The model proposes. Policy authorizes. Razorpay executes.
+        <span class="highlighter-marker">CORE PRINCIPLE:</span>
+        <span>The model proposes. Policy authorizes. Razorpay executes.</span>
       </div>
       <div class="principle-right">
         <span id="rzp-invariant-header-pill" class="invariant-pill">INVARIANT: 0 API CALLS ON REJECT</span>
@@ -70,7 +112,7 @@
     <!-- Dual Track Command Center Switcher -->
     <div class="command-center-tabs">
       <button id="tab-btn-security" class="cmd-tab active" onclick="switchCommandTab('security')">
-        🛡️ TRACK 1B: SECURITY FIREWALL
+        🛡️ TRACK 1B: DETERMINISTIC FIREWALL
       </button>
       <button id="tab-btn-growth" class="cmd-tab" onclick="switchCommandTab('growth')">
         📈 TRACK 1A: MERCHANT AI UPSELL (+20.8% GMV)
@@ -84,8 +126,8 @@
     <section id="tab-panel-growth" class="growth-panel" style="display: none;">
       <div class="growth-header">
         <div>
-          <h3 style="color: #34d399; font-size: 1.1rem; margin-bottom: 4px;">📈 TRACK 1A: MERCHANT REVENUE &amp; UPSELL ENGINE</h3>
-          <p style="color: #94a3b8; font-size: 0.82rem;">Autonomous add-on bundler maximizing merchant basket size within customer's signed spending ceiling.</p>
+          <h3>📈 TRACK 1A: MERCHANT REVENUE &amp; UPSELL ENGINE</h3>
+          <p style="color: var(--color-newsprint-gray); font-size: 14px; margin-top: 4px;">Autonomous add-on bundler maximizing merchant basket size within customer's signed spending ceiling.</p>
         </div>
         <div class="gmv-badge">MERCHANT GMV GROWTH: +20.8%</div>
       </div>
@@ -93,24 +135,24 @@
         <div class="growth-stat-card">
           <div class="growth-stat-title">Base Item Proposal</div>
           <div class="growth-stat-val">₹1,200 INR</div>
-          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">SKU-002 Silver Heart Necklace (1 unit)</div>
+          <div style="font-size: 12px; color: var(--color-newsprint-gray); margin-top: 6px;">SKU-002 Silver Heart Necklace (1 unit)</div>
         </div>
         <div class="growth-stat-card">
           <div class="growth-stat-title">Mandate Headroom Remaining</div>
-          <div class="growth-stat-val" style="color: #38bdf8;">₹300 INR</div>
-          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">Max Limit ₹1,500 - Base ₹1,200</div>
+          <div class="growth-stat-val">₹300 INR</div>
+          <div style="font-size: 12px; color: var(--color-newsprint-gray); margin-top: 6px;">Max Limit ₹1,500 - Base ₹1,200</div>
         </div>
         <div class="growth-stat-card">
           <div class="growth-stat-title">Bundled Add-on Total</div>
           <div class="growth-stat-val highlight-green">₹1,450 INR</div>
-          <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">+ SKU-006 Gift Wrap (₹250) · Headroom Left: ₹50</div>
+          <div style="font-size: 12px; color: var(--color-newsprint-gray); margin-top: 6px;">+ SKU-006 Gift Wrap (₹250) · Headroom Left: ₹50</div>
         </div>
       </div>
       <div class="growth-actions">
         <button class="btn btn-legit" onclick="runMerchantUpsellDemo()">
           ⚡ Trigger Autonomous Merchant Upsell (+20.8% GMV)
         </button>
-        <span style="font-size: 0.75rem; color: #94a3b8;">Buyer agent evaluates bundle, confirms ₹1,450 &le; ₹1,500 mandate, and creates Razorpay order.</span>
+        <span style="font-size: 13px; color: var(--color-newsprint-gray);">Buyer agent evaluates bundle, confirms ₹1,450 &le; ₹1,500 mandate, and creates Razorpay order.</span>
       </div>
     </section>
 
@@ -118,36 +160,36 @@
     <section id="tab-panel-recovery" class="recovery-panel" style="display: none;">
       <div class="growth-header">
         <div>
-          <h3 style="color: #fbbf24; font-size: 1.1rem; margin-bottom: 4px;">🔄 TRACK 1C: GRACEFUL FAILURE &amp; COUNTER-PROPOSAL RECOVERY</h3>
-          <p style="color: #94a3b8; font-size: 0.82rem;">Satisfies Razorpay criterion: "one failure handled gracefully" with autonomous remediation.</p>
+          <h3>🔄 TRACK 1C: GRACEFUL FAILURE &amp; COUNTER-PROPOSAL RECOVERY</h3>
+          <p style="color: var(--color-newsprint-gray); font-size: 14px; margin-top: 4px;">Satisfies Razorpay criterion: "one failure handled gracefully" with autonomous remediation.</p>
         </div>
-        <span class="badge" style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid #f59e0b;">AUTO-RECOVERABLE LOOP</span>
+        <span class="badge" style="background: var(--color-press-black); color: var(--color-highlighter-green); border: 1px solid var(--color-highlighter-green);">AUTO-RECOVERABLE LOOP</span>
       </div>
       <div class="recovery-flow-grid">
         <div class="recovery-step-box">
           <span class="step-tag tag-fail">PHASE 1: ATTACK BLOCKED</span>
-          <h4 style="font-size: 0.9rem; margin-bottom: 4px;">Adversarial Injection (40 units)</h4>
-          <p style="font-size: 0.75rem; color: #94a3b8;">Agent tricked by catalog text requests ₹48,000. Sentry firewall blocks transaction.</p>
-          <div style="font-size: 0.72rem; color: #f87171; font-weight: 700; margin-top: 6px;">Razorpay API Calls: 0 ✓</div>
+          <h4 style="font-size: 16px; margin-bottom: 4px; font-weight: 600;">Adversarial Injection (40 units)</h4>
+          <p style="font-size: 13px; color: var(--color-newsprint-gray); line-height: 1.4;">Agent tricked by catalog text requests ₹48,000. Sentry firewall blocks transaction.</p>
+          <div style="font-size: 12px; color: #9b1c1c; font-weight: 700; margin-top: 8px;">Razorpay API Calls: 0 ✓</div>
         </div>
         <div class="recovery-step-box">
           <span class="step-tag tag-remediate">PHASE 2: COUNTER-PROPOSAL</span>
-          <h4 style="font-size: 0.9rem; margin-bottom: 4px;">Remediation Engine Calculation</h4>
-          <p style="font-size: 0.75rem; color: #94a3b8;">Calculates maximum quantity fitting ₹1,500 limit: 1 unit at ₹1,200 INR.</p>
-          <div style="font-size: 0.72rem; color: #fbbf24; font-weight: 700; margin-top: 6px;">Remediation: Counter-Proposal Offered</div>
+          <h4 style="font-size: 16px; margin-bottom: 4px; font-weight: 600;">Remediation Engine Calculation</h4>
+          <p style="font-size: 13px; color: var(--color-newsprint-gray); line-height: 1.4;">Calculates maximum quantity fitting ₹1,500 limit: 1 unit at ₹1,200 INR.</p>
+          <div style="font-size: 12px; color: #723b13; font-weight: 700; margin-top: 8px;">Remediation: Counter-Proposal Offered</div>
         </div>
         <div class="recovery-step-box">
           <span class="step-tag tag-recover">PHASE 3: AUTONOMOUS RECOVERY</span>
-          <h4 style="font-size: 0.9rem; margin-bottom: 4px;">Order Authorized &amp; Settled</h4>
-          <p style="font-size: 0.75rem; color: #94a3b8;">Buyer agent accepts counter-proposal; Razorpay order created cleanly.</p>
-          <div style="font-size: 0.72rem; color: #34d399; font-weight: 700; margin-top: 6px;">Status: Recovered &amp; Audited ✓</div>
+          <h4 style="font-size: 16px; margin-bottom: 4px; font-weight: 600;">Order Authorized &amp; Settled</h4>
+          <p style="font-size: 13px; color: var(--color-newsprint-gray); line-height: 1.4;">Buyer agent accepts counter-proposal; Razorpay order created cleanly.</p>
+          <div style="font-size: 12px; color: #03543f; font-weight: 700; margin-top: 8px;">Status: Recovered &amp; Audited ✓</div>
         </div>
       </div>
       <div class="growth-actions">
-        <button class="btn btn-accent" onclick="runGracefulRecoveryDemo()">
+        <button class="btn btn-legit" onclick="runGracefulRecoveryDemo()">
           ⚡ Run Graceful Recovery Demo
         </button>
-        <span style="font-size: 0.75rem; color: #94a3b8;">Executes full 3-phase loop and logs both rejection and recovery in immutable SQLite audit ledger.</span>
+        <span style="font-size: 13px; color: var(--color-newsprint-gray);">Executes full 3-phase loop and logs both rejection and recovery in immutable SQLite audit ledger.</span>
       </div>
     </section>
 
@@ -168,9 +210,9 @@
           <span class="t-label">Razorpay Order API:</span>
           <span class="t-val" id="t-rzp-ms">210 ms</span>
         </div>
-        <div class="t-chip t-zero-cost">
+        <div class="t-chip">
           <span class="t-label">Security Cost:</span>
-          <span class="t-val">0.02% Overhead (< 0.5ms)</span>
+          <span class="t-val">0.02% Overhead (&lt; 0.5ms)</span>
         </div>
       </div>
     </section>
@@ -276,7 +318,7 @@
       </div>
     </section>
 
-    <!-- Red Team Jailbreak Lab (Collapsible) -->
+    <!-- Red Team Jailbreak Lab (Collapsible Dark Editorial Section) -->
     <section id="redteam-lab" class="redteam-lab" style="display: none;">
       <div class="redteam-header">
         <div class="redteam-title-group">
@@ -313,7 +355,7 @@
           </div>
           <h4>Direct Prompt Injection</h4>
           <p>Model tricked by product description to order 40 units (₹48,000).</p>
-          <button class="btn btn-test-vector">Test Exploit ►</button>
+          <button class="btn-test-vector">Test Exploit ►</button>
         </div>
 
         <div class="vector-card" onclick="runSingleRedTeam('base64_jailbreak')">
@@ -323,7 +365,7 @@
           </div>
           <h4>Base64 Obfuscated Jailbreak</h4>
           <p>Malicious instruction encoded in base64 to bypass LLM text filters.</p>
-          <button class="btn btn-test-vector">Test Exploit ►</button>
+          <button class="btn-test-vector">Test Exploit ►</button>
         </div>
 
         <div class="vector-card" onclick="runSingleRedTeam('category_escalation')">
@@ -333,7 +375,7 @@
           </div>
           <h4>Category Escalation Attack</h4>
           <p>Purchasing unauthorized high-value electronics under gifts scope.</p>
-          <button class="btn btn-test-vector">Test Exploit ►</button>
+          <button class="btn-test-vector">Test Exploit ►</button>
         </div>
 
         <div class="vector-card" onclick="runSingleRedTeam('currency_arbitrage')">
@@ -343,7 +385,7 @@
           </div>
           <h4>Currency Arbitrage Attack</h4>
           <p>Switching currency to USD to exploit numeric threshold confusion.</p>
-          <button class="btn btn-test-vector">Test Exploit ►</button>
+          <button class="btn-test-vector">Test Exploit ►</button>
         </div>
 
         <div class="vector-card" onclick="runSingleRedTeam('replay_burst')">
@@ -353,7 +395,7 @@
           </div>
           <h4>Replay Burst Attack</h4>
           <p>Concurrent burst proposals exploiting consumed single-use tokens.</p>
-          <button class="btn btn-test-vector">Test Exploit ►</button>
+          <button class="btn-test-vector">Test Exploit ►</button>
         </div>
 
         <div class="vector-card" onclick="runSingleRedTeam('price_spoofing')">
@@ -363,7 +405,7 @@
           </div>
           <h4>Price Spoofing / Tampering</h4>
           <p>Agent claims unit price is ₹48 instead of catalog ₹4,800.</p>
-          <button class="btn btn-test-vector">Test Exploit ►</button>
+          <button class="btn-test-vector">Test Exploit ►</button>
         </div>
       </div>
     </section>
@@ -421,7 +463,7 @@
       </div>
     </div>
 
-    <!-- Main Grid -->
+    <!-- Main 3-Column Broadsheet Grid -->
     <main class="dashboard-grid">
       <!-- Section 1: Active Mandate -->
       <div class="card mandate-card" id="mandate-card-container">
@@ -539,6 +581,53 @@
       </div>
     </section>
 
+    <!-- Full-Bleed Accent Band (Closing Signature Before Footer) -->
+    <section class="full-bleed-accent-band">
+      <div class="band-wordmark-letter">S</div>
+      <div class="band-caption">SENTRY · DETERMINISTIC PAYMENT AUTHORIZATION FIREWALL · RAZORPAY TEST MODE</div>
+    </section>
+
+    <!-- Dark Editorial Footer (From design.md) -->
+    <footer class="editorial-footer">
+      <div class="footer-inner">
+        <div class="footer-grid">
+          <div class="footer-col">
+            <h4>SENTRY COMMERCE SECURITY</h4>
+            <p>An agent-readable storefront with a deterministic payment authorization firewall engineered for autonomous commerce.</p>
+            <p class="sub-p">"The model proposes. Policy authorizes. Razorpay executes."</p>
+          </div>
+          <div class="footer-col">
+            <h4>TRACK 01</h4>
+            <ul>
+              <li><a href="#tab-panel-growth" onclick="switchCommandTab('growth')">Merchant AI Upsell</a></li>
+              <li><a href="#pipeline-container">Deterministic Gate</a></li>
+              <li><a href="#tab-panel-recovery" onclick="switchCommandTab('recovery')">Graceful Recovery</a></li>
+              <li><a href="javascript:void(0)" onclick="toggleRedTeamLab()">Red Team Lab</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>STANDARDS</h4>
+            <ul>
+              <li><a href="javascript:void(0)" onclick="openUapModal()">NPCI UAP 1.0</a></li>
+              <li><a href="javascript:void(0)" onclick="openAp2Modal()">W3C AP2 Token</a></li>
+              <li><a href="javascript:void(0)" onclick="openCatalogModal()">Storefront Catalog</a></li>
+              <li><a href="javascript:void(0)" onclick="startVideoTour()">Video Tour Mode</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>SECURITY VERIFICATION</h4>
+            <p style="font-size: 14px; line-height: 1.5; color: var(--color-muted-sage);">
+              Mathematical invariant enforced across all transactions: If FirewallVerdict &ne; APPROVED &rArr; Razorpay.create_order() Calls = 0.
+            </p>
+          </div>
+        </div>
+        <div class="footer-bottom-strip">
+          <span>&copy; 2026 Sentry Architecture · Built for Razorpay AI Buildathon</span>
+          <span>Designed with New Form Editorial Broadsheet Aesthetics</span>
+        </div>
+      </div>
+    </footer>
+
     <!-- Storefront Catalog Modal -->
     <div id="catalog-modal" class="modal" style="display: none;">
       <div class="modal-content">
@@ -557,18 +646,18 @@
       <div class="modal-content checkout-modal-content">
         <div class="rzp-checkout-header">
           <div class="rzp-brand-header">
-            <span class="rzp-blue-dot"></span>
-            <strong>Razorpay</strong>
+            <span class="pulse-dot"></span>
+            <strong style="font-family: var(--font-twk-lausanne); font-size: 18px;">Razorpay</strong>
             <span class="test-mode-badge">TEST MODE</span>
           </div>
           <button class="close-btn" onclick="closeCheckoutModal()">✕</button>
         </div>
         <div class="rzp-checkout-body">
           <div class="checkout-amount-row">
-            <span class="checkout-item-title" id="checkout-item-name">Silver Heart Necklace</span>
+            <span class="checkout-item-title" id="checkout-item-name" style="font-family: var(--font-twk-lausanne); font-size: 15px;">Silver Heart Necklace</span>
             <span class="checkout-price-val" id="checkout-amount-display">₹1,200.00</span>
           </div>
-          <div class="rzp-auth-banner">
+          <div style="background: #f1f8f2; padding: 10px; border: 1px solid #c4e4c9; font-size: 12px; margin-bottom: 16px;">
             <span>🛡️ Pre-authorized by Sentry Spending Mandate: <code id="checkout-mandate-id">mnd_...</code></span>
           </div>
           <div class="payment-methods">
@@ -596,7 +685,7 @@
             <span>Pay <span id="pay-btn-amount">₹1,200</span></span>
             <span class="btn-lock">🔒</span>
           </button>
-          <div class="rzp-security-footer">
+          <div style="text-align: center; margin-top: 14px; font-size: 11px; color: var(--color-newsprint-gray);">
             <span>🔒 Secured by 256-bit encryption &amp; Sentry Policy Firewall</span>
           </div>
         </div>
@@ -605,9 +694,9 @@
 
     <!-- Razorpay Order Receipt Modal -->
     <div id="receipt-modal" class="modal" style="display: none;">
-      <div class="modal-content receipt-modal-content">
-        <div class="modal-header rzp-receipt-header">
-          <div class="rzp-logo-badge">Razorpay [Test Mode]</div>
+      <div class="modal-content" style="max-width: 520px;">
+        <div class="modal-header">
+          <h3>🧾 RAZORPAY PAYMENT RECEIPT</h3>
           <button class="close-btn" onclick="closeReceiptModal()">✕</button>
         </div>
         <div class="receipt-body" id="receipt-body">
@@ -618,13 +707,13 @@
 
     <!-- AP2 Verifiable Credential Export Modal -->
     <div id="ap2-modal" class="modal" style="display: none;">
-      <div class="modal-content ap2-modal-content">
+      <div class="modal-content">
         <div class="modal-header">
           <h3>📜 AP2 / UAP VERIFIABLE SPENDING MANDATE</h3>
           <button class="close-btn" onclick="closeAp2Modal()">✕</button>
         </div>
         <div class="ap2-body">
-          <p class="ap2-desc">W3C Verifiable Credential standard format with cryptographic Ed25519 signature proof for agentic commerce interoperability.</p>
+          <p style="font-size: 14px; color: var(--color-newsprint-gray); margin-bottom: 16px;">W3C Verifiable Credential standard format with cryptographic Ed25519 signature proof for agentic commerce interoperability.</p>
           <pre class="ap2-json" id="ap2-json-display">Loading AP2 Token...</pre>
           <div class="ap2-actions">
             <button class="btn btn-copy" onclick="copyAp2Token()">📋 Copy Token</button>
@@ -635,13 +724,13 @@
 
     <!-- NPCI Unified Authorization Protocol (UAP 1.0-Draft) Certificate Modal -->
     <div id="uap-modal" class="modal" style="display: none;">
-      <div class="modal-content ap2-modal-content">
+      <div class="modal-content">
         <div class="modal-header">
           <h3>📜 NPCI UNIFIED AUTHORIZATION PROTOCOL (UAP 1.0)</h3>
           <button class="close-btn" onclick="closeUapModal()">✕</button>
         </div>
         <div class="ap2-body">
-          <p class="ap2-desc">Standardized NPCI UAP / W3C Verifiable Credential certificate with Ed25519 cryptographic signature proof for agentic commerce in India.</p>
+          <p style="font-size: 14px; color: var(--color-newsprint-gray); margin-bottom: 16px;">Standardized NPCI UAP / W3C Verifiable Credential certificate with Ed25519 cryptographic signature proof for agentic commerce in India.</p>
           <pre class="ap2-json" id="uap-json-display">Loading NPCI UAP Certificate...</pre>
           <div class="ap2-actions">
             <button class="btn btn-copy" onclick="copyUapCertificate()">📋 Copy Certificate</button>
@@ -650,11 +739,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <p>Sentry is an award-winning agentic-commerce security architecture for <strong>Razorpay AI Buildathon 2026</strong>.</p>
-    </footer>
   </div>
 
   <script src="/static/app.js"></script>
